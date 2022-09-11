@@ -28,6 +28,7 @@ A web project aims to analysis all kinds of job in each cities
 - [flask](https://github.com/pallets/flask)
 - [sqlalchemy](https://github.com/sqlalchemy/sqlalchemy)
 - [sklearn](https://github.com/automl/auto-sklearn)
+- [bs4]()
 
 ## require pythos packages:
 - [git操作指南](https://blog.csdn.net/weixin_67585820/article/details/123554416)

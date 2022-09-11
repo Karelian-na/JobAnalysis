@@ -13,5 +13,8 @@
 		"baseUri": "/",
 		"proxyUri": "http://127.0.0.1:5000"
 	},
-	"liveServer.settings.root": "/src"
+	"liveServer.settings.root": "/src",
+	"prettier.useTabs": false,
+    "editor.insertSpaces": true,
+    "editor.detectIndentation": false
 }
