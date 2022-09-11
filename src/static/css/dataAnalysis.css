@@ -1,0 +1,81 @@
+/* 消除所有默认边框格式 */
+		* {
+			padding: 0;
+			margin: 0;
+		}
+body{
+    background-color: #dfe0e3;
+}
+/* .content开始 */
+.content {
+    width: calc(100% - 190px);
+    /* border: 1px solid black; */
+    display: inline-block;
+}
+.content>div{
+    white-space: nowrap;;
+}
+
+/* 展示框属性设置 */
+.display_box{
+    /* letter-spacing: 0em; */
+    border-radius: 10px;
+    background-color: #ffffff;
+    margin: 10px auto 10px 20px;
+    opacity: 0.8;
+}
+/* 用户选择框设置 */
+.user_selection{
+    width: 1275px;
+    height: 80px;
+    margin: 10px auto 5px 10px;
+}
+
+
+ .user_selection_left,.user_selection_middle,.user_selection_right{
+    width: 407px;
+    height: 80px;
+    margin: 0px 0px 0px 15px;
+    display: inline-block;
+    
+}
+    
+
+body .content .part_title{
+    font-family: "楷体";
+    font-size: 18px;
+    color: black;
+    display: block;
+    line-height: 30px;
+    text-align: center;
+}
+
+.line2_charts_right .table-container {
+    height: calc(100% - 50px);
+    overflow: auto;
+}
+.line2_charts_right .table-container table th,td{
+    text-indent: 100px;
+}
+
+
+.line1_charts_left,.line2_charts_right{
+    width: 800px;
+    height: 400px;
+    display: inline-block;
+}
+
+.line1_charts_right,.line2_charts_left{
+    height: 400px;
+    display: inline-block;
+    vertical-align: top;
+    width: 450px;
+}
+
+
+.line3_charts{
+    width: 1275px;
+    height: 400px;
+    /* display: inline-block; */
+    
+}
