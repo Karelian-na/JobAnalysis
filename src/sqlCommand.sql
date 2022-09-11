@@ -13,10 +13,12 @@ GRANT Alter, Alter Routine,
 USE `jobAnalysis`;
 
 CREATE TABLE jobs(
-	id INT PRIMARY KEY AUTO_INCREMENT,
+	id INT PRIMARY KEY,
 	name VARCHAR(255),
-	salary VARCHAR(20),
-	city VARCHAR(255),
+	salary_min TINYINT,
+    salary_max TINYINT,
+    salary_sys TINYINT,
+	work_area VARCHAR(255),
 	experience VARCHAR(255),
 	degree VARCHAR(255),
 	company_name VARCHAR(255),
