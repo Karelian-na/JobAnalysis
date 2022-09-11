@@ -4,9 +4,42 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>Document</title>
+	<title>E workers</title>
+	<link rel="stylesheet" href="../static/css/common.css">
+	<link rel="stylesheet" href="../static/css/index.css">
+	<link rel="stylesheet" href="../static/css/layui.css">
 </head>
 <body>
-	{{ content }}
+	<div class="top-nav">
+			<p>
+				<img src="../static/img/nav_logo.png" alt="">招聘信息数据分析平台
+				<img src="../static/img/nav_logo_right.png" alt="">
+			</p>
+			
+			
+	</div>
+
+	<div class="content">
+		<ul class="layui-nav layui-nav-tree" lay-filter="test">
+			<!-- 侧边导航: <ul class="layui-nav layui-nav-tree layui-nav-side"> -->
+			<li class="layui-nav-item layui-nav-itemed">
+				<a href="javascript:;" class="&#xe66d"><i class="iconfont icon-Correction"></i>&nbsp;&nbsp;数据分析</a>
+				<dl class="layui-nav-child">
+				<dd><a href="totalAnalysis.html" target="content_show">总体分析</a></dd>
+				<dd><a href="singleCareerAnalysis.html" target="content_show">单一职业分析</a></dd>
+				<dd><a href="singleVocationAnalysis.html" target="content_show">单一行业分析</a></dd>
+				</dl>
+			</li>
+			<li class="layui-nav-item">
+				<a href="javascript:;"><i class="iconfont icon-Correction"></i>&nbsp;&nbsp;招聘信息</a>
+				<dl class="layui-nav-child">
+				<dd><a href="./allJobDetails.html" target="content_show">招聘信息展示</a></dd>
+				</dl>
+			</li>
+		</ul>
+		<!-- 信息展示部分 -->
+		<iframe name="content_show" src="/welcome" frameborder="0" height="100%"></iframe>
+	</div>
+	<script src="../static/layui.js"></script>
 </body>
 </html>
