@@ -72,6 +72,7 @@ class JobService(BaseService):
             print("{}:{}添加入库成功!".format(job.id, job.name))
             return True
         except:
+            session.rollback()
             print("{}:{}添加入库失败!".format(job.id, job.name))
             return False
             

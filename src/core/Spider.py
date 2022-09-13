@@ -1,11 +1,12 @@
 from csv import excel
+from distutils.command.config import config
 import json
 from random import randint
 import requests
 from time import sleep
 from models.entities import Job
 from services.JobServices import JobService
-from .SpiderConfig import SpiderConfig, FiveOneConfig
+from .SpiderConfig import BossConfig, SpiderConfig, FiveOneConfig
 
 
 class Spider:
@@ -61,43 +62,59 @@ class Spider:
         jobs: list[Job] = []
         job: Job
 
-        for config in self.__configs__:
-            accessedPageAmount: int = 0
-            while accessedPageAmount < pageAmountEachConfig:
-                while True:
-                    try:
-                        url = config.randUrl()
-                        break
-                    except Exception as e:
-                        if e.args[0] == "ERROR_NO_MORE_ITEM":
-                            return jobs
-                        continue
-                    
-                accessedPageAmount = accessedPageAmount + 1
-                res = requests.get(url, headers=config.headers, cookies=config.cookies, timeout=2)
+        eachConfigAccessedPageAmount = { config.name: 0 for config in self.__configs__ }
+        while len(self.__configs__) != 0:
+            config = self.__configs__[randint(0, len(self.__configs__) - 1)]
 
-                if res.status_code == 200:
-                    config.updateCookies(res.cookies)
+            # 专门针对boos直聘, 搞死它:
+            # if isinstance(config, BossConfig):
+            #     with open("./src/cookie.json", encoding="utf-8", mode="r") as file:
+            #         cookies = json.loads(file.read())
+            #         config.cookies = cookies.get(config.__class__.__name__)
+
+            if eachConfigAccessedPageAmount[config.name] > pageAmountEachConfig:
+                self.__configs__.remove(config)
+                continue
+
+            while True:
+                try:
+                    url = config.randUrl()
+                    break
+                except Exception as e:
+                    if e.args[0] == "ERROR_NO_MORE_ITEM":
+                        return jobs
+                    continue
+                
+            eachConfigAccessedPageAmount[config.name] = eachConfigAccessedPageAmount[config.name] + 1
+            res = requests.get(url, headers=config.headers, cookies=config.cookies, timeout=2)
+
+            if res.status_code != 200:
+                print("\n请求{}的第{}个数据包失败!".format(config.name, eachConfigAccessedPageAmount[config.name]))
+            else:
+                config.updateCookies(res.cookies)
+                try:
+                    items = config.getRawJobsList(res.text)
+                except:
+                    print("\n爬取{}的第{}个数据包失败! 服务器回复:{} ".format(config.name, eachConfigAccessedPageAmount[config.name], res.text))
+                    self.__configs__.remove(config)
+                    continue
+                else:
+                    print("\n爬取{}的第{}个数据包成功!".format(config.name, eachConfigAccessedPageAmount[config.name]))
+
+                for item in items:
                     try:
-                        data = json.loads(res.text)
-                        items = config.getRawJobsList(data)
-                        config.updateMaxPage(config.__last_city__, data)
-                        for item in items:
-                            job = config.createRawJobInstance(item).toLocalJob()
-                            if job:
-                                jobService.add(job)
-                                jobs.append(job)
+                        job = config.createRawJobInstance(item).toLocalJob()
+                        if job:
+                            jobService.add(job)
+                            jobs.append(job)
                     except Exception as e:
                         if e.args[0] == "ERROR_INIT_TYPE":
-                            print("\n转换{}时异常! 原因:{}\n".format(item, e.args))
-                            continue
+                            print("\n转换{}时异常! 原因:{} ".format(item, e.args))
                         elif e.args[0] == "ERROR_DATA":
-                            print("\n数据{}无效!\n".format(item))
-                            continue
-                        print("\n爬取{}时中断! 原因:{} 服务器回复:{}\n".format(config.__class__.__name__, e.args, res.text))
-                        break
-
-                timeout = randint(5, self.__frequency__)
-                print("\n爬取{}的第{}个数据包成功!延迟{}s\n".format(config.__class__.__name__, accessedPageAmount, timeout))
-                sleep(timeout)
+                            print("\n数据{}无效! ".format(item))
+                        else:
+                            print("\n转换数据{}时出现未知错误! ".format(item))
+            timeout = randint(5, self.__frequency__)
+            print("\n延迟{}s\n".format(timeout))
+            sleep(timeout)
         return jobs
