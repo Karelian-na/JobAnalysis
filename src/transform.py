@@ -1,4 +1,3 @@
-
 import json
 from core.SpiderConfig import BossConfig, FiveOneConfig, HookConfig
 from services.JobServices import JobService

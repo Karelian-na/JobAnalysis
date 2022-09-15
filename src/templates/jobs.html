@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="../static/css/common.css">
+    <link rel="stylesheet" href="../static/css/layui.css">
+    <link rel="stylesheet" href="../static/css/jobs.css">
+</head>
+<body>
+    <div class="content">
+        <form class="layui-form">
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">查询字段:</label>
+                <div class="layui-input-inline">
+                    <input name="groupAmount" placeholder="输入搜索内容" autocomplete="off" class="layui-input">
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <label class="layui-form-label">查询字段:</label>
+                <div class="layui-input-block">
+                    <select name="area">
+                        <option value="">选择查询字段</option>
+                        {% for area in areas %}
+                        <option value="{{ area.work_area }}">{{ area.work_area }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="layui-form-item layui-inline">
+                <button class="layui-btn" lay-submit lay-filter="formDemo">立即查询</button>
+                <button type="reset" class="layui-btn layui-btn-primary">重置</button>
+            </div>
+
+        </form>
+        <div class="table">
+            <table class="layui-hide" id="jobs"></table>
+        </div>
+    </div>
+    <script src="../static/layui.js"></script>
+    <script src="../static/js/jobs.js"></script>
+</body>
+</html>

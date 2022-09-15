@@ -1,5 +1,5 @@
 import abc
-from models.entities import EntityBase
+from src.models.entities import EntityBase
 
 class BaseService:
 	@abc.abstractmethod
