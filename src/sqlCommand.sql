@@ -13,7 +13,7 @@ GRANT Alter, Alter Routine,
 USE `jobAnalysis`;
 
 CREATE TABLE jobs(
-	id INT PRIMARY KEY,
+	id VARCHAR(28) PRIMARY KEY,
 	name VARCHAR(255),
 	salary_min TINYINT,
     salary_max TINYINT,

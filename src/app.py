@@ -114,8 +114,8 @@ def spidy():
     amount = int(request.args.get("pageAmount")) if request.args.get("pageAmount") else None
     if not amount or amount < 1:
         amount = 1
-    else:
-        amount = int(amount) if int(amount) < 100 else 1
+    elif amount > 100:
+        amount = 100
 
     cookies: dict[str, str]
     with open("./src/cookie.json", encoding="utf-8", mode="r") as file:
@@ -134,7 +134,7 @@ def spidy():
     zhiTongConfig.cookies = cookies.get(zhiTongConfig.__class__.__name__)
 
     spilder = Spider(20, configs=[fiveOneConfig, hookConfig, zhiTongConfig])
-    spilder.get(1)
+    spilder.get(amount)
 
     for config in spilder.configs:
         cookies.setdefault(config.__class__.__name__, config.getCookieString())
@@ -148,7 +148,7 @@ def spidy():
     #     driverer.get("http://127.0.0.1:5000/getBossNewCookie?seed=f9a3eaXo1PjlvITEvNWwZIlI8MSVvMSg4X1hHXgw4EHRcUng8Jz1hTCxuUixiDA48Fx8JB2xCfi07SkUAeHI/VBpgTAgEfwpKXxgbT0EFMxwueE0SNEBINwBFdw8YCHt3VSY7Dj9EXVVyeTk=&timestamp=1663238962260")
     # except Exception:
     #     return "fail"
-    # return "success"
+    return "success"
 
 
 @app.route("/getBossNewCookie/", methods=["GET"])
