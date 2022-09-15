@@ -1,0 +1,25 @@
+{
+  "name": "jobanalysis",
+  "version": "1.0.0",
+  "description": "analysis jobs",
+  "main": "\"\"",
+  "scripts": {
+    "test": "\"\""
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Karelian-na/JobAnalysis.git"
+  },
+  "author": "Xuanqiang Leng, Shaobo Liu, Tingyu Huang, Zhenkun Liang, Shengpen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Karelian-na/JobAnalysis/issues"
+  },
+  "homepage": "https://github.com/Karelian-na/JobAnalysis#readme",
+  "devDependencies": {
+    "@types/echarts": "^4.9.16",
+    "@types/jquery": "^3.5.14",
+    "@types/layui-src": "^2.6.0",
+    "layui": "^2.8.0-beta.2"
+  }
+}

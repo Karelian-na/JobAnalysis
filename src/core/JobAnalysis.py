@@ -1,69 +1,21 @@
-import re
+from copy import copy
+from src.models.entities import Job
 from sklearn.feature_extraction.text import TfidfVectorizer
-from .SpiderConfig import RawJobType
-from models.entities import Job
 
 class JobAnalysis:
     __jobs__: list[Job]
     __categories__: dict[str, list[Job]]
 
+
     @property
     def Categories(self):
         return self.__categories__
+
 
     @property
     def Jobs(self):
         return self.__jobs__
 
-    @staticmethod
-    def processRawJobs(rawJobs: list[RawJobType]) -> list[Job]:
-        jobs: list[Job] = []
-        for rawJob in rawJobs:
-            job = Job()
-            job.id = rawJob.id
-            job.name = re.compile("((（|\(|\[).*(）|\]|\)))|((-|\+).*)|[\d]届?(.招)?").sub("", rawJob.name)
-            
-            # 处理薪水
-            matches = re.compile("\d*-\d*K").match(rawJob)
-            matches = re.compile("^(\d*(\.\d)?)(千?)-(\d*(\.\d)?)(千|万)(·(\d*)薪)?").match(rawJob.salary_text)
-            if matches:
-                if matches[3] == "":
-                    rate = 1 if matches[6] == "千" else 10
-                    job.salary_min = float(matches[1]) * rate
-                    job.salary_max = float(matches[4]) * rate
-                else:
-                    job.salary_min = float(matches[1])
-                    job.salary_max = float(matches[4]) * 10
-
-                job.salary_sys = int(matches[8]) if matches[8] else 12
-            else:
-                matches = re.compile("(\d*)元/天").match(rawJob.salary_text)
-                if matches:
-                    daySal = int(matches[1])
-                    job.salary_min = daySal * 0.022
-                    job.salary_max = daySal * 0.03
-                    job.salary_sys = 12
-                else:
-                    matches = re.compile("(\d*)千及以下").match(rawJob.salary_text)
-                    if matches:
-                        job.salary_min = float(matches[1])
-                        job.salary_max = float(matches[1])
-                        job.salary_sys = 12
-                    else:
-                        matches = re.compile("(\d*)-(\d*)万/年").match(rawJob.salary_text)
-                        if matches:
-                            job.salary_min = float(matches[1]) / 1.2
-                            job.salary_max = float(matches[2]) / 1.2
-                            job.salary_sys = 12
-
-            job.work_area = rawJob.work_area
-            job.experience = rawJob.experience
-            job.degree = rawJob.degree
-            job.company_name = rawJob.company_name
-            job.type = rawJob.type
-
-            jobs.append(job)
-        return jobs
 
     @classmethod
     def group(self, jobs: list[Job], groupAmount: int) -> None:
@@ -98,6 +50,7 @@ class JobAnalysis:
 
         self.__categories__ = categories
 
+
     @classmethod
     def statistic(self) -> dict[str, int]:
         """statistic jobs' amount under each category
@@ -107,52 +60,85 @@ class JobAnalysis:
         """
         result: dict[str, int] = dict()
         for category in self.__categories__:
-            result.setdefault(category, self.__categories__.get(category).__len__)
+            result.setdefault(category, len(self.__categories__.get(category)))
 
         return result
+
 
     @classmethod
-    def statisticEducation(self) -> dict[str, dict[str, int]]:
+    def statisticDegree(self, isCategory: bool) -> dict[str, dict[str, int]] | dict[str, int]:
         """statistic jobs' degree group under each category
 
-        Returns: dict[str, dict[str, int]]: \n
-                the result, str specified category name,\n
-                dict[str, int] speicified degree array and amount in each item
+        Args:
+            isCategory (bool): specified wherther statistic category
+
+        Returns: dict[str, dict[str, int]] | dict[str, int]: \n
+                if isCategory equals true, returns type of dict[str, int]: str specified category/name, int specified amount\n
+                otherwise returns type of dict[str, dict[str, int]]: str specified category/name, dict[str, int] specified each amount of degree\n
         """
-        result: dict[str, dict[str, int]] = dict()
-        for category in self.__categories__:
-            jobs = self.__categories__.get(category)
-            groups: dict[str, int] = dict()
-            for job in jobs:
-                count = groups.get(job.degree)
-                if count:
+        degrees = {
+            "学历不限": 0,
+            "初中及以下": 0,
+            "中技/中专": 0,
+            "高中": 0,
+            "大专": 0,
+            "本科": 0,
+            "硕士": 0,
+            "博士": 0,
+        }
+        result: dict[str, dict[str, int]] | dict[str, int]
+        if isCategory:
+            result = { category: copy(degrees) for category in self.__categories__ }
+            for category in result:
+                jobs = self.__categories__.get(category)
+                groups = result.get(category)
+                for job in jobs:
+                    count = groups.get(job.degree)
                     groups.update({ job.degree: count + 1 })
-                else:
-                    groups.setdefault(job.degree, 1)
-            result.setdefault(category, groups)
+        else:
+            result = degrees
+            for job in self.__jobs__:
+                count = result.get(job.degree)
+                result.update({ job.degree: count + 1 })
 
         return result
 
-    def statisticExperience(self) -> dict[str, dict[str, int]]:
+
+    def statisticExperience(self, isCategory: bool) -> dict[str, dict[str, int]] | dict[str, int]:
         """statistic jobs' experience group under each category
 
-        Returns: dict[str, dict[str, int]]: \n
-                the result, str specified category name,\n
-                dict[str, int] speicified experience array and amount in each item
-        """
-        result: dict[str, dict[str, int]] = dict()
-        for category in self.__categories__:
-            jobs = self.__categories__.get(category)
-            groups: dict[str, int] = dict()
-            for job in jobs:
-                count = groups.get(job.experience)
-                if count:
-                    groups.update({ job.experience: count + 1 })
-                else:
-                    groups.setdefault(job.experience, 1)
-            result.setdefault(category, groups)
+        Args:
+            isCategory (bool): specified wherther statistic category
 
+        Returns: dict[str, dict[str, int]] | dict[str, int]: \n
+                if isCategory equals true, returns type of dict[str, int]: str specified category/name, int specified amount\n
+                otherwise returns type of dict[str, dict[str, int]]: str specified category/name, dict[str, int] specified each amount of experience\n
+        """
+        experiences = {
+            "无需经验": 0,
+            "在校生/应届生": 0,
+            "1年以内经验": 0,
+            "1-3年经验": 0,
+            "3-5年经验": 0,
+            "5-10年经验": 0,
+            "10年及以上经验": 0,
+        }
+        result: dict[str, dict[str, int]] | dict[str, int]
+        if isCategory:
+            result = { category: copy(experiences) for category in self.__categories__ }
+            for category in result:
+                jobs = self.__categories__.get(category)
+                groups = result.get(category)
+                for job in jobs:
+                    count = groups.get(job.experience)
+                    groups.update({ job.experience: count + 1 })
+        else:
+            result = experiences
+            for job in self.__jobs__:
+                count = result.get(job.experience)
+                result.update({ job.experience: count + 1 })
         return result
+
 
     def statisticSalary(self) -> dict[str, str]:
         """statistic jobs' salary interval under each category
@@ -165,15 +151,21 @@ class JobAnalysis:
             jobs = self.__categories__.get(category)
             averageMinSalary: int = 0
             averageMaxSalary: int = 0
+
             for job in jobs:
                 averageMinSalary += job.salary_min
                 averageMaxSalary += job.salary_max
             averageMinSalary /= len(jobs)
             averageMaxSalary /= len(jobs)
 
-            result.setdefault(category, "{:.1f}k-{:.1f}k".format(averageMinSalary, averageMaxSalary))
+            result.setdefault(category, {
+                "min": averageMinSalary.__round__(1),
+                "mid": ((averageMinSalary + averageMaxSalary) / 2).__round__(1),
+                "max": averageMaxSalary.__round__(1),
+            })
 
         return result
+
 
     def analysisRelation(self):
         pass

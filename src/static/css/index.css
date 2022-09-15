@@ -15,6 +15,7 @@ body {
 body {
     display: flex;
     flex-direction: column;
+    min-width: 500px;
 }
 
 /* .nav开始 */
@@ -31,17 +32,18 @@ body {
     font-family:"楷体";
     letter-spacing: 0.6em;
     text-align: center;
+    height: 55px;
 }
 .top-nav p img{
     width: 200px;
-    height: 55px;
-    position: absolute;
 }
 .top-nav p img:nth-child(1){
+    float: left;
     left: 0px;
 }
 .top-nav p img:nth-child(2){
-    right: 30px;
+    float: right;
+    margin-right: 30px;
 }
 /* 顶部nav结束 */
 

@@ -1,11 +1,8 @@
-from csv import excel
-from distutils.command.config import config
-import json
-from random import randint
 import requests
 from time import sleep
-from models.entities import Job
-from services.JobServices import JobService
+from random import randint
+from src.models.entities import Job
+from src.services.JobServices import JobService
 from .SpiderConfig import BossConfig, SpiderConfig, FiveOneConfig
 
 

@@ -24,3 +24,14 @@ CREATE TABLE jobs(
 	company_name VARCHAR(255),
 	type VARCHAR(255)
 );
+
+SELECT * FROM jobs WHERE salary_max < salary_min
+
+SELECT degree FROM jobs GROUP BY degree
+
+SELECT experience FROM jobs GROUP BY experience
+SELECT type FROM jobs GROUP BY type
+
+SELECT * FROM jobs WHERE id = "000ff605dd5b84991XB-09u0F1NW"
+
+SELECT * FROM jobs WHERE experience = "大专"

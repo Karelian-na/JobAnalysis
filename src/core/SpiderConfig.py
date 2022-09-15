@@ -1,13 +1,13 @@
-from datetime import datetime
-import json
-from time import sleep
-from requests.cookies import RequestsCookieJar
 import re
-from random import randint
-from typing import Mapping
+import json
 import requests
+from time import sleep
+from random import randint
+from datetime import datetime
+from typing import Mapping, Type
+from src.models.entities import Job
+from requests.cookies import RequestsCookieJar
 
-from models.entities import Job
 
 RawValueType = dict[str, str | list[str]]
 
@@ -34,13 +34,14 @@ user_Agent = [
     'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50'
 ]
 
+
 class RawJobType:
     __raw_value__: RawValueType
     __id__: str
     __name__: str
     __salary_min__: float
     __salary_max__: float
-    __salary_sys__: float
+    __salary_sys__: int
     __work_area__: str
     __experience__: str
     __degree__: str
@@ -48,7 +49,7 @@ class RawJobType:
     __type__: str
 
     @property
-    def id(self) -> str: 
+    def id(self) -> str:
         return self.__id__
 
     @property
@@ -60,15 +61,15 @@ class RawJobType:
         return self.__salary_min__
 
     @property
-    def salary_max(self) -> float: 
+    def salary_max(self) -> float:
         return self.__salary_max__
 
     @property
-    def salary_sys(self) -> int: 
+    def salary_sys(self) -> int:
         return self.__salary_sys__
 
     @property
-    def work_area(self) -> str: 
+    def work_area(self) -> str:
         return self.__work_area__
 
     @property
@@ -76,21 +77,21 @@ class RawJobType:
         return self.__experience__
 
     @property
-    def degree(self) -> str: 
+    def degree(self) -> str:
         return self.__degree__
 
     @property
-    def company_name(self) -> str: 
+    def company_name(self) -> str:
         return self.__company_name__
 
     @property
-    def type(self) -> str: 
+    def type(self) -> str:
         return self.__type__
 
     def __init__(self, rawValue: RawValueType) -> None:
         self.__raw_value__ = rawValue
 
-    def toLocalJob(self) -> Job:
+    def toLocalJob(self) -> Job | None:
         job = Job()
         try:
             job.id = self.id
@@ -104,22 +105,24 @@ class RawJobType:
             job.degree = self.degree
             job.company_name = self.company_name
             job.type = self.type
-        except :
+        except Exception:
             return None
         return job
+
 
 class FiveOneType(RawJobType):
     def __init__(self, rawValue: RawValueType) -> None:
         super().__init__(rawValue)
-        
+
         try:
             self.__id__ = "51" + self.__raw_value__["jobid"]
-            self.__name__ = re.compile("(((（|\(|\[).*(）|\]|\)))|((-|\+).*)|[\d]届?(.招)?)$").sub("", self.__raw_value__["job_name"])
+            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)$").sub("", self.__raw_value__[
+                "job_name"])
             self.__work_area__ = re.compile("(-.*)").sub("", self.__raw_value__["workarea_text"])
-            self.__degree__ = self.__raw_value__["attribute_text"][2] if len(self.__raw_value__["attribute_text"]) == 3 else "学历不限"
+            self.__degree__ = self.__raw_value__["attribute_text"][2] if len(
+                self.__raw_value__["attribute_text"]) == 3 else "学历不限"
             self.__company_name__ = self.__raw_value__["company_name"]
             self.__type__ = self.__raw_value__["companyind_text"].split("/")[0]
-
 
             # 工作经验
             if len(self.__raw_value__["attribute_text"]) >= 2:
@@ -139,7 +142,7 @@ class FiveOneType(RawJobType):
             salary = self.__raw_value__["providesalary_text"]
             if not salary:
                 raise Exception("ERROR_DATA")
-            matches = re.compile("^(\d*(\.\d)?)(千?)-(\d*(\.\d)?)(千|万)(·(\d*)薪)?").match(salary)
+            matches = re.compile("^(\d*(\.\d)?)(千?)-(\d*(\.\d)?)[千万](·(\d*)薪)?").match(salary)
             if matches:
                 if matches[3] == "":
                     rate = 1 if matches[6] == "千" else 10
@@ -177,13 +180,15 @@ class FiveOneType(RawJobType):
                 raise e
             raise Exception("ERROR_INIT_TYPE", e.args)
 
+
 class BossType(RawJobType):
     def __init__(self, rawValue: RawValueType) -> None:
         super().__init__(rawValue)
 
         try:
             self.__id__ = self.__raw_value__["encryptJobId"]
-            self.__name__ = re.compile("(((（|\(|\[).*(）|\]|\)))|((-|\+).*)|[\d]届?(.招)?)$").sub("", self.__raw_value__["jobName"])
+            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)$").sub("", self.__raw_value__[
+                'jobName'])
             self.__work_area__ = self.__raw_value__["cityName"]
             self.__company_name__ = self.__raw_value__["brandName"]
             self.__type__ = self.__raw_value__["brandIndustry"].split("/")[0]
@@ -191,10 +196,11 @@ class BossType(RawJobType):
             experience = self.__raw_value__["jobExperience"]
             if experience == "经验不限":
                 self.__experience__ = "无需经验"
-            elif re.compile("在校生|应届生|在校\/应届").match(experience):
+            elif re.compile("在校生|应届生|在校/应届").match(experience):
                 self.__experience__ = "在校生/应届生"
             else:
-                self.__experience__ = self.__raw_value__["jobExperience"] + "经验" if self.__raw_value__["jobExperience"] else "无需经验"
+                self.__experience__ = self.__raw_value__["jobExperience"] + "经验" if self.__raw_value__[
+                    "jobExperience"] else "无需经验"
 
             if self.__raw_value__["jobDegree"] == "中专/中技":
                 self.__degree__ = "中技/中专"
@@ -215,7 +221,7 @@ class BossType(RawJobType):
                 self.__salary_max__ = int(matches[2]) * 0.001
                 self.__salary_sys__ = 12
                 return
-            
+
             matches = re.compile("(\d*)-(\d*)元/天").match(salary)
             if matches:
                 daySal = int(matches[1])
@@ -226,6 +232,7 @@ class BossType(RawJobType):
 
         except Exception as e:
             raise Exception("ERROR_INIT_TYPE", e.args)
+
 
 class ZhiTongType(RawJobType):
     def __init__(self, rawValue: RawValueType) -> None:
@@ -263,11 +270,12 @@ class ZhiTongType(RawJobType):
             self.__company_name__ = self.__raw_value__["comName"]
             self.__type__ = self.__raw_value__["comIndustryStr"].split("/")[0]
 
-            self.__salary_min__ = float(self.__raw_value__["maxSalary"]) * 0.001
-            self.__salary_max__ = float(self.__raw_value__["minSalary"]) * 0.001
+            self.__salary_min__ = float(self.__raw_value__["minSalary"]) * 0.001
+            self.__salary_max__ = float(self.__raw_value__["maxSalary"]) * 0.001
             self.__salary_sys__ = 12
         except Exception as e:
             raise Exception("ERROR_INIT_DATA", e.args)
+
 
 class HookType(RawJobType):
     def __init__(self, rawValue: RawValueType) -> None:
@@ -297,7 +305,7 @@ class HookType(RawJobType):
             if matches:
                 self.__salary_min__ = float(matches[1])
                 self.__salary_max__ = float(matches[2])
-                
+
             self.__salary_sys__ = int(self.__raw_value__["salaryMonth"]) if self.__raw_value__["salaryMonth"] else 12
         except Exception as e:
             raise Exception("ERROR_INIT_DATA", e.args)
@@ -309,9 +317,9 @@ class SpiderConfig:
     __method__: str
     __cookie__: RequestsCookieJar
     __referer__: str
-    __headers__: Mapping[str, str | bytes] | None
+    __headers__: Mapping[str, str | bytes]
 
-    __type__: type[RawJobType]
+    __type__: Type[RawJobType]
 
     __cities__: list[str]
     __last_city__: str
@@ -320,9 +328,9 @@ class SpiderConfig:
     __page_size__: int
     __json_data__: dict[str, ]
 
-    def getRawJobsList(self, text: str) -> list[RawJobType]: 
+    def getRawJobsList(self, text: str) -> list[RawJobType]:
         """get all raw job list from the http response text
-            this is a virtual function, sub class must implement it
+            this is a virtual function, subclass must implement it
         Args:
             text (str): the http response text
 
@@ -340,9 +348,9 @@ class SpiderConfig:
         return self.__cities__
 
     @property
-    def lastAccessCity(self) -> list[str] | None:
+    def lastAccessCity(self) -> str | None:
         return self.__last_city__
-    
+
     @property
     def headers(self) -> Mapping[str, str | bytes] | None:
         return self.__headers__
@@ -364,7 +372,7 @@ class SpiderConfig:
                 name, value = item.split("=", 1)
                 self.__cookie__.set(name, value)
 
-    def __init__(self, name: int) -> None:
+    def __init__(self, name: str) -> None:
         self.__name__ = name
         self.__text_except_data__ = None
         self.__cookie__ = RequestsCookieJar()
@@ -390,7 +398,8 @@ class SpiderConfig:
         """
         self.__last_city__ = randomCity
         self.__headers__["User-Agent"] = user_Agent[randint(0, len(user_Agent) - 1)]
-        
+        return ""
+
     def __update_max_page__(self, pageAmount: int) -> None:
         """update last city's max pageAmount
 
@@ -421,10 +430,10 @@ class SpiderConfig:
                 return self.__update_request_msg__(randomCity, currentPageIdx)
             else:
                 self.__cities_pages_info__.pop(randomCity)
-                self.__cities__.pop(randomCity)
+                self.__cities__.remove(randomCity)
         else:
             raise Exception("ERROR_NO_MORE_ITEM", "No more Url to get!")
-        
+
     def updateCookies(self, cookies: RequestsCookieJar):
         """update current sessions' cookies by the response cookies
 
@@ -454,11 +463,12 @@ class SpiderConfig:
         """
         return self.__type__(rawValue)
 
+
 class FiveOneConfig(SpiderConfig):
     __method__ = "GET"
     __page_size__ = 50
     __url__ = "https://search.51job.com/list/{},000000,0000,00,9,99,+,2,{}.html?lang=c&postchannel=0000&workyear=99&cotype=99&degreefrom=99&jobterm=99&companysize=99&ord_field=0&dibiaoid=0&line=&welfare="
-    __headers__ =  {
+    __headers__ = {
         'Accept': 'application/json, text/javascript, */*; q=0.01',
         'Accept-Encoding': 'gzip, deflate, br',
         'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
@@ -477,8 +487,8 @@ class FiveOneConfig(SpiderConfig):
     }
     __type__ = FiveOneType
     __referer__ = __url__
-    
-    def __init__(self, name: int) -> None:
+
+    def __init__(self, name: str) -> None:
         self.__cities__ = [
             '010000',
             '020000',
@@ -508,19 +518,20 @@ class FiveOneConfig(SpiderConfig):
         ]
         super().__init__(name)
 
-    def __update_request_msg__(self, randomCity: str, pageIdx: int): 
+    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> str:
         super().__update_request_msg__(randomCity, pageIdx)
         self.__headers__["Referer"] = self.__referer__.format(randomCity, pageIdx)
         return self.__url__.format(randomCity, pageIdx)
-    
+
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         try:
             data = json.loads(text)
             self.__json_data__ = data
             self.__update_max_page__(data["total_page"])
             return data["engine_jds"]
-        except:
+        except Exception:
             raise Exception("ERROR_GET_DATA_LIST")
+
 
 class BossConfig(SpiderConfig):
     __method__ = "GET"
@@ -547,7 +558,7 @@ class BossConfig(SpiderConfig):
     __type__ = BossType
     __referer__ = 'https://www.zhipin.com/web/geek/job?query=&city={}&page={}'
 
-    def __init__(self, name: int) -> None:
+    def __init__(self, name: str) -> None:
         self.__cities__ = [
             "100010000",
             "101010100",
@@ -567,11 +578,11 @@ class BossConfig(SpiderConfig):
         ]
         super().__init__(name)
 
-    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> None:
+    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> str:
         super().__update_request_msg__(randomCity, pageIdx)
         self.__headers__["Referer"] = self.__referer__.format(randomCity, pageIdx)
         return self.__url__.format(randomCity, pageIdx)
-    
+
     def updateCookies(self, cookies: RequestsCookieJar):
         """update current sessions' cookies by the response cookies
 
@@ -579,9 +590,8 @@ class BossConfig(SpiderConfig):
             cookies (RequestsCookieJar): the response cookie
         """
         seed = cookies.get("__zp_sseed__")
-        s = cookies.get("__zp_sname__")
         timestamp = cookies.get("__zp_sts__")
-        res = requests.get("http://127.0.0.1:5000/getBossNewCookie/seed={}&timestamp={}".format(seed, timestamp))
+        requests.get("http://127.0.0.1:5000/getBossNewCookie/seed={}&timestamp={}".format(seed, timestamp))
         while True:
             with open("./src/newCookie.txt", encoding="utf-8") as file:
                 cookieValue = file.readline()
@@ -596,8 +606,9 @@ class BossConfig(SpiderConfig):
             self.__json_data__ = data
             self.__update_max_page__(int(int(data["zpData"]["totalCount"]) / self.__page_size__))
             return data["zpData"]["jobList"]
-        except:
+        except Exception:
             raise Exception("ERROR_GET_DATA_LIST")
+
 
 class ZhiTongConfig(SpiderConfig):
     __method__ = "GET"
@@ -626,7 +637,7 @@ class ZhiTongConfig(SpiderConfig):
     __type__ = ZhiTongType
     __referer__ = 'https://www.job5156.com/s/result/kt0_wl14090000/?keywordFromSource=&recommendFromKeyword=&keywordType=0&keyword=&locationList={}'
 
-    def __init__(self, name: int) -> None:
+    def __init__(self, name: str) -> None:
         self.__cities__ = [
             '14010000',
             '14010100',
@@ -651,19 +662,20 @@ class ZhiTongConfig(SpiderConfig):
         ]
         super().__init__(name)
 
-    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> None:
+    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> str:
         super().__update_request_msg__(randomCity, pageIdx)
         self.__headers__["Referer"] = self.__referer__.format(randomCity)
         return self.__url__.format(str(datetime.now().timestamp()).replace(".", "")[:13], randomCity, pageIdx)
-    
+
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         try:
             data = json.loads(text)
             self.__json_data__ = data
             self.__update_max_page__(int(data["posData"]["pageCount"]))
             return data["posData"]["posItems"]
-        except:
+        except Exception:
             raise Exception("ERROR_GET_DATA_LIST")
+
 
 class HookConfig(SpiderConfig):
     __method__ = "GET"
@@ -688,7 +700,7 @@ class HookConfig(SpiderConfig):
     }
     __type__ = HookType
 
-    def __init__(self, name: int) -> None:
+    def __init__(self, name: str) -> None:
         self.__cities__ = [
             '北京',
             '上海',
@@ -706,19 +718,20 @@ class HookConfig(SpiderConfig):
         ]
         super().__init__(name)
 
-    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> None:
+    def __update_request_msg__(self, randomCity: str, pageIdx: int) -> str:
         super().__update_request_msg__(randomCity, pageIdx)
         return self.__url__.format(pageIdx, randomCity)
 
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         try:
-            matches = re.compile('.*<script id="__NEXT_DATA__".*?type="application\/json">(.*?)<\/script>').match(text)
+            matches = re.compile('.*<script id="__NEXT_DATA__".*?type="application/json">(.*?)</script>').match(text)
             if matches:
                 data = json.loads(matches[1])
             else:
                 data = json.loads(text)
             self.__json_data__ = data
-            self.__update_max_page__(int(int(data["props"]["pageProps"]["initData"]["content"]["positionResult"]["totalCount"]) / self.__page_size__))
+            self.__update_max_page__(int(int(data["props"]["pageProps"]["initData"]["content"]["positionResult"][
+                                                 "totalCount"]) / self.__page_size__))
             return data["props"]["pageProps"]["initData"]["content"]["positionResult"]["result"]
-        except:
+        except Exception:
             raise Exception("ERROR_GET_DATA_LIST")

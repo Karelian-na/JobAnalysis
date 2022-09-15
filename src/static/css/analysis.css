@@ -1,0 +1,81 @@
+body {
+    min-width: 1200px;
+}
+
+form.layui-form {
+    padding-top: 20px;
+}
+
+.content {
+    width: 100%;
+}
+
+.content .layui-row {
+    padding: 20px;
+}
+
+.layui-row .salary-bar {
+    width: calc(100% - 20px);
+}
+
+
+.layui-row .group-pie {
+    width: calc(35% - 20px);
+}
+
+.layui-row .jobs {
+    width: calc(65% - 20px);
+}
+
+
+.layui-row .degree-bar {
+    width: calc(65% - 20px);
+}
+
+.layui-row .degree-pie {
+    width: calc(35% - 20px);
+}
+
+
+
+.layui-row .experience-pie {
+    width: calc(35% - 20px);
+}
+
+.layui-row .experience-bar {
+    width: calc(65% - 20px);
+}
+
+
+.content .chart-container,
+.content .jobs {
+    padding: 20px;
+    float: left;
+    background-color: white;
+    box-shadow: 1px 1px 10px 0 white;
+    border-radius: 10px;
+    margin-left: 20px;
+    box-sizing: border-box;
+}
+
+.content div.chart {
+    height: 500px;
+}
+
+.content .jobs {
+    display: flex;
+    flex-direction: column;
+    height: 540px;
+}
+
+.content .jobs p {
+    text-align: center;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+.content .jobs .table {
+    overflow: auto;
+    flex-grow: 1;
+}
+

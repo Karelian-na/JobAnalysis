@@ -3,3 +3,4 @@ src/core/jupyter.ipynb
 src/core/Experiment_8.ipynb
 files
 .vs
+node_modules
