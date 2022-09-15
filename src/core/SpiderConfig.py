@@ -8,30 +8,29 @@ from typing import Mapping, Type
 from src.models.entities import Job
 from requests.cookies import RequestsCookieJar
 
-
 RawValueType = dict[str, str | list[str]]
 
 user_Agent = [
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60',
-    'Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/2.0.0 Opera 9.50',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0',
-    'Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
-    'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko',
-    'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.71 Safari/537.1 LBBROWSER',
-    'Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0',
-    'Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1',
-    'Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; en) Presto/2.8.131 Version/11.11',
-    'Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11',
-    'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_0) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11',
-    'Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50',
-    'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50'
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/61.0.3163.100 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36 OPR/26.0.1656.60",
+    "Mozilla/5.0 (Windows NT 5.1; U; en; rv:1.8.1) Gecko/20061208 Firefox/2.0.0 Opera 9.50",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; rv:34.0) Gecko/20100101 Firefox/34.0",
+    "Mozilla/5.0 (X11; U; Linux x86_64; zh-CN; rv:1.9.2.10) Gecko/20100922 Ubuntu/10.10 (maverick) Firefox/3.6.10",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/534.57.2 (KHTML, like Gecko) Version/5.1.7 Safari/534.57.2",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36",
+    "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11",
+    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/30.0.1599.101 Safari/537.36",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko",
+    "Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.1 (KHTML, like Gecko) Chrome/21.0.1180.71 Safari/537.1 LBBROWSER",
+    "Mozilla/5.0 (Windows NT 5.1) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.84 Safari/535.11 SE 2.X MetaSr 1.0",
+    "Mozilla/5.0 (Windows NT 6.1; rv:2.0.1) Gecko/20100101 Firefox/4.0.1",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:2.0.1) Gecko/20100101 Firefox/4.0.1",
+    "Opera/9.80 (Macintosh; Intel Mac OS X 10.6.8; U; en) Presto/2.8.131 Version/11.11",
+    "Opera/9.80 (Windows NT 6.1; U; en) Presto/2.8.131 Version/11.11",
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_7_0) AppleWebKit/535.11 (KHTML, like Gecko) Chrome/17.0.963.56 Safari/535.11",
+    "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_6_8; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50",
+    "Mozilla/5.0 (Windows; U; Windows NT 6.1; en-us) AppleWebKit/534.50 (KHTML, like Gecko) Version/5.1 Safari/534.50",
 ]
 
 
@@ -201,7 +200,7 @@ class BossType(RawJobType):
             else:
                 self.__experience__ = self.__raw_value__["jobExperience"] + "经验" if self.__raw_value__[
                     "jobExperience"] else "无需经验"
-
+                    
             if self.__raw_value__["jobDegree"] == "中专/中技":
                 self.__degree__ = "中技/中专"
             else:
@@ -255,7 +254,7 @@ class ZhiTongType(RawJobType):
             elif re.compile("经验[5-9]年").match(experience):
                 self.__experience__ = "5-10年经验"
             elif re.compile("经验10年.*").match(experience):
-                self.__experience__ = "10年及以上经验"
+                self.__experience__ = "10年以上经验"
 
             degree = self.__raw_value__["reqDegreeStr"]
             if degree == "不限":
@@ -289,6 +288,12 @@ class HookType(RawJobType):
             experience = self.__raw_value__["workYear"]
             if experience == "不限":
                 self.__experience__ = "无需经验"
+            elif experience == "1年以下经验":
+                self.__experience__ = "1年以内经验"
+            elif experience == "在校/应届经验":
+                self.__experience__ = "在校生/应届生"
+            elif re.compile("(本科|硕士|高中|大专)").match(experience):
+                pass
             else:
                 self.__experience__ = experience + "经验"
 
@@ -307,6 +312,7 @@ class HookType(RawJobType):
                 self.__salary_max__ = float(matches[2])
 
             self.__salary_sys__ = int(self.__raw_value__["salaryMonth"]) if self.__raw_value__["salaryMonth"] else 12
+
         except Exception as e:
             raise Exception("ERROR_INIT_DATA", e.args)
 
@@ -326,7 +332,9 @@ class SpiderConfig:
     __cities_pages_info__: dict[str, dict[str, int | list[int]]]
 
     __page_size__: int
-    __json_data__: dict[str, ]
+    __json_data__: dict[
+        str,
+    ]
 
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         """get all raw job list from the http response text
@@ -360,7 +368,13 @@ class SpiderConfig:
         return self.__cookie__
 
     @cookies.setter
-    def cookies(self, cookies: dict[str, ] | str):
+    def cookies(
+        self,
+        cookies: dict[
+            str,
+        ]
+        | str,
+    ):
         """parse to RequestsCookieJar from a string or a dict with a string key and any value
 
         Args:
@@ -399,6 +413,7 @@ class SpiderConfig:
         self.__last_city__ = randomCity
         self.__headers__["User-Agent"] = user_Agent[randint(0, len(user_Agent) - 1)]
         return ""
+        
 
     def __update_max_page__(self, pageAmount: int) -> None:
         """update last city's max pageAmount
@@ -408,7 +423,9 @@ class SpiderConfig:
         """
         if self.__cities_pages_info__[self.__last_city__]["maxPage"] != pageAmount:
             self.__cities_pages_info__[self.__last_city__]["maxPage"] = pageAmount
-            self.__cities_pages_info__[self.__last_city__]["unAccessedPages"] = list(range(1, int(pageAmount) + 1))
+            self.__cities_pages_info__[self.__last_city__]["unAccessedPages"] = list(
+                range(1, int(pageAmount) + 1)
+            )
 
     def randUrl(self) -> str:
         """generate a new random request url
@@ -488,33 +505,34 @@ class FiveOneConfig(SpiderConfig):
     __type__ = FiveOneType
     __referer__ = __url__
 
+
     def __init__(self, name: str) -> None:
         self.__cities__ = [
-            '010000',
-            '020000',
-            '030200',
-            '040000',
-            '180200',
-            '200200',
-            '080200',
-            '070200',
-            '090200',
-            '060000',
-            '030800',
-            '230300',
-            '230200',
-            '070300',
-            '250200',
-            '190200',
-            '150200',
-            '080300',
-            '170200',
-            '050000',
-            '120300',
-            '120200',
-            '220200',
-            '240200',
-            '110200'
+            "010000",
+            "020000",
+            "030200",
+            "040000",
+            "180200",
+            "200200",
+            "080200",
+            "070200",
+            "090200",
+            "060000",
+            "030800",
+            "230300",
+            "230200",
+            "070300",
+            "250200",
+            "190200",
+            "150200",
+            "080300",
+            "170200",
+            "050000",
+            "120300",
+            "120200",
+            "220200",
+            "240200",
+            "110200",
         ]
         super().__init__(name)
 
@@ -538,25 +556,22 @@ class BossConfig(SpiderConfig):
     __page_size__ = 30
     __url__ = "https://www.zhipin.com/wapi/zpgeek/search/joblist.json?scene=1&query=&city={}&experience=&degree=&industry=&scale=&stage=&position=&salary=&multiBusinessDistrict=&page={}&pageSize=30"
     __headers__ = {
-        'accept': 'application/json, text/plain, */*',
-        'accept-encoding': 'gzip, deflate, br',
-        'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-        'cache-control': 'no-cache',
-        'pragma': 'no-cache',
-        'sec-ch-ua': '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'sec-fetch-dest': 'empty',
-        'sec-fetch-mode': 'cors',
-        'sec-fetch-site': 'same-origin',
-        'token': 'cGbsHkNO1v2lUY23',
-        'traceid': '72C6F6CA-566C-42A6-8EE0-2705570620BE',
-        'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
-        'x-requested-with': 'XMLHttpRequest',
-        'zp_token': 'V1RN4vGeD00ltiVtRvyR4YKi606TLRxyo~',
+        "Accept": "application/json, text/plain, */*",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9",
+        "Connection": "keep-alive",
+        "Host": "www.zhipin.com",
+        "sec-ch-ua": '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
     }
     __type__ = BossType
-    __referer__ = 'https://www.zhipin.com/web/geek/job?query=&city={}&page={}'
+    __referer__ = "https://www.zhipin.com/web/geek/job?query=&city={}&page={}"
 
     def __init__(self, name: str) -> None:
         self.__cities__ = [
@@ -593,18 +608,21 @@ class BossConfig(SpiderConfig):
         timestamp = cookies.get("__zp_sts__")
         requests.get("http://127.0.0.1:5000/getBossNewCookie/seed={}&timestamp={}".format(seed, timestamp))
         while True:
-            with open("./src/newCookie.txt", encoding="utf-8") as file:
+            with open("./src/newCookie.txt", encoding="utf-8", mode="r+") as file:
                 cookieValue = file.readline()
                 if cookieValue:
                     self.__cookie__.set("__zp_stoken__", cookieValue)
+                    file.write("")
                     break
-                sleep(0.5)
+                sleep(4)
 
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         try:
             data = json.loads(text)
             self.__json_data__ = data
-            self.__update_max_page__(int(int(data["zpData"]["totalCount"]) / self.__page_size__))
+            self.__update_max_page__(
+                int(int(data["zpData"]["totalCount"]) / self.__page_size__)
+            )
             return data["zpData"]["jobList"]
         except Exception:
             raise Exception("ERROR_GET_DATA_LIST")
@@ -615,50 +633,47 @@ class ZhiTongConfig(SpiderConfig):
     __page_size__ = 10
     __url__ = "https://www.job5156.com/s/result?t={}&keyword=&keywordType=0&posTypeList=&locationList={}&taoLabelList=免费培训&degreeFrom=&propertyList=&industryList=&sortBy=0&urgentFlag=&comIdList=&locationAddrStr=&maxSalary=&salary=&workyearFrom=&workyearTo=&degreeTo&pn={}"
     __headers__ = {
-        'Accept': 'application/json, text/javascript, */*; q=0.01',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-        'AppType': 'pc',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
-        'Host': 'www.job5156.com',
-        'isAsync': 'true',
-        'posTypeNewFlag': 'true',
-        'Pragma': 'no-cache',
-        'sec-ch-ua': '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'Sec-Fetch-Dest': 'empty',
-        'Sec-Fetch-Mode': 'cors',
-        'Sec-Fetch-Site': 'same-origin',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
-        'X-Requested-With': 'XMLHttpRequest',
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        "AppType": "pc",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+        "Host": "www.job5156.com",
+        "isAsync": "true",
+        "posTypeNewFlag": "true",
+        "Pragma": "no-cache",
+        "sec-ch-ua": '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "Sec-Fetch-Dest": "empty",
+        "Sec-Fetch-Mode": "cors",
+        "Sec-Fetch-Site": "same-origin",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
+        "X-Requested-With": "XMLHttpRequest",
     }
     __type__ = ZhiTongType
-    __referer__ = 'https://www.job5156.com/s/result/kt0_wl14090000/?keywordFromSource=&recommendFromKeyword=&keywordType=0&keyword=&locationList={}'
+    __referer__ = "https://www.job5156.com/s/result/kt0_wl14090000/?keywordFromSource=&recommendFromKeyword=&keywordType=0&keyword=&locationList={}"
 
     def __init__(self, name: str) -> None:
         self.__cities__ = [
-            '14010000',
-            '14010100',
-            '14010200',
-            '14010300',
-            '14010400',
-            '14013300',
-            '14010500',
-
-            '14080000',
-            '14080100',
-            '14080200',
-
-            '14090000',
-
-            '14040000',
-            '14020000',
-            '14030000',
-            '14070000',
-            '28070000',
-            '28010000',
+            "14010000",
+            "14010100",
+            "14010200",
+            "14010300",
+            "14010400",
+            "14013300",
+            "14010500",
+            "14080000",
+            "14080100",
+            "14080200",
+            "14090000",
+            "14040000",
+            "14020000",
+            "14030000",
+            "14070000",
+            "28070000",
+            "28010000",
         ]
         super().__init__(name)
 
@@ -682,39 +697,39 @@ class HookConfig(SpiderConfig):
     __page_size__ = 15
     __url__ = "https://www.lagou.com/wn/jobs?pn={}&fromSearch=true&city={}"
     __headers__ = {
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9',
-        'Accept-Encoding': 'gzip, deflate, br',
-        'Accept-Language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-        'Cache-Control': 'max-age=0',
-        'Connection': 'keep-alive',
-        'Host': 'www.lagou.com',
-        'sec-ch-ua': '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
-        'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"Windows"',
-        'Sec-Fetch-Dest': 'document',
-        'Sec-Fetch-Mode': 'navigate',
-        'Sec-Fetch-Site': 'none',
-        'Sec-Fetch-User': '?1',
-        'Upgrade-Insecure-Requests': '1',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36',
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Cache-Control": "max-age=0",
+        "Connection": "keep-alive",
+        "Host": "www.lagou.com",
+        "sec-ch-ua": '"Google Chrome";v="105", "Not)A;Brand";v="8", "Chromium";v="105"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1",
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36",
     }
     __type__ = HookType
 
     def __init__(self, name: str) -> None:
         self.__cities__ = [
-            '北京',
-            '上海',
-            '深圳',
-            '广州',
-            '杭州',
-            '成都',
-            '南京',
-            '武汉',
-            '西安',
-            '厦门',
-            '长沙',
-            '苏州',
-            '天津',
+            "北京",
+            "上海",
+            "深圳",
+            "广州",
+            "杭州",
+            "成都",
+            "南京",
+            "武汉",
+            "西安",
+            "厦门",
+            "长沙",
+            "苏州",
+            "天津",
         ]
         super().__init__(name)
 
