@@ -16,7 +16,7 @@
         <div class="layui-form-item layui-inline">
             <label class="layui-form-label">选择职业</label>
             <div class="layui-input-block">
-                <select name="{{ filter }}">
+                <select name="filterValue">
                     <option value="">所有职业 </option>
                     {% for category in categories %}
                     <option value="{{ category }}">{{ category }}</option>
@@ -28,12 +28,18 @@
             <div class="layui-inline">
                 <label class="layui-form-label">薪资范围:</label>
                 <div class="layui-input-inline" style="width: 100px">
-                    <input type="text" name="salary-min" placeholder="3" autocomplete="off" class="layui-input" />
+                    <input type="text" name="minSalary" placeholder="1" autocomplete="off" class="layui-input" />
                 </div>
                 <div class="layui-form-mid">-</div>
                 <div class="layui-input-inline" style="width: 100px">
-                    <input type="text" name="salary-max" placeholder="50" autocomplete="off" class="layui-input" />
+                    <input type="text" name="maxSalary" placeholder="20" autocomplete="off" class="layui-input" />
                 </div>
+            </div>
+        </div>
+        <div class="layui-form-item layui-inline">
+            <label class="layui-form-label">分段数量:</label>
+            <div class="layui-input-inline">
+                <input name="groupAmount" placeholder="输入分段数量" type="number" autocomplete="off" class="layui-input">
             </div>
         </div>
         <div class="layui-form-item layui-inline">
@@ -50,30 +56,34 @@
                 <div id="salaryBar" class="chart">
                 </div>
             </div>
-        </div>
-        <div class="layui-row">
-            <!-- 当前职业各学历需求堆叠条形分布 -->
-            <div class="chart-container degree-bar">
-                <div id="degreeBar" class="chart">
+            <div class="chart-container salary-pie">
+                <div id="salaryPie" class="chart">
                 </div>
             </div>
-
+        </div>
+        <div class="layui-row">
             <!-- 学历占比 -->
             <div class="chart-container degree-pie">
                 <div id="degreePie" class="chart">
                 </div>
             </div>
-        </div>
-        <div class="layui-row">
-            <!-- 经验占比 -->
-            <div class="chart-container experience-pie">
-                <div id="experiencePie" class="chart">
+
+            <!-- 当前职业各学历需求堆叠条形分布 -->
+            <div class="chart-container degree-bar">
+                <div id="degreeBar" class="chart">
                 </div>
             </div>
-            
+        </div>
+        <div class="layui-row">
             <!--当前职业各经验需求堆叠条形分布 -->
             <div class="chart-container experience-bar">
                 <div id="experienceBar" class="chart">
+                </div>
+            </div>
+
+            <!-- 经验占比 -->
+            <div class="chart-container experience-pie">
+                <div id="experiencePie" class="chart">
                 </div>
             </div>
         </div>

@@ -1,10 +1,9 @@
 from src.database import DB_URL
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, String, Float, SmallInteger
+from sqlalchemy import Column, String, Float, SmallInteger
 
-
-engine = create_engine(DB_URL, echo=True)
+engine = create_engine(DB_URL)
 EntityBase = declarative_base(engine)
 
 
@@ -20,7 +19,6 @@ class Job(EntityBase):
     degree = Column(String(255))
     company_name = Column(String(255))
     type = Column(String(255))
-
 
     def toDict(self) -> dict[str, str | int]:
         data: dict[str, str | int] = {

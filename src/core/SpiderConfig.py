@@ -7,6 +7,7 @@ from datetime import datetime
 from typing import Mapping, Type
 from src.models.entities import Job
 from requests.cookies import RequestsCookieJar
+from selenium import webdriver
 
 RawValueType = dict[str, str | list[str]]
 
@@ -115,7 +116,7 @@ class FiveOneType(RawJobType):
 
         try:
             self.__id__ = "51" + self.__raw_value__["jobid"]
-            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)$").sub("", self.__raw_value__[
+            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)").sub("", self.__raw_value__[
                 "job_name"])
             self.__work_area__ = re.compile("(-.*)").sub("", self.__raw_value__["workarea_text"])
             self.__degree__ = self.__raw_value__["attribute_text"][2] if len(
@@ -151,7 +152,7 @@ class FiveOneType(RawJobType):
                     self.__salary_min__ = float(matches[1])
                     self.__salary_max__ = float(matches[4]) * 10
 
-                self.__salary_sys__ = int(matches[8]) if matches[8] else 12
+                self.__salary_sys__ = int(matches[7]) if matches[7] else 12
                 return
 
             matches = re.compile("(\d*)元/天").match(salary)
@@ -186,7 +187,7 @@ class BossType(RawJobType):
 
         try:
             self.__id__ = self.__raw_value__["encryptJobId"]
-            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)$").sub("", self.__raw_value__[
+            self.__name__ = re.compile("(([（([].*[]）)])|([-+].*)|\d届?(.招)?)").sub("", self.__raw_value__[
                 'jobName'])
             self.__work_area__ = self.__raw_value__["cityName"]
             self.__company_name__ = self.__raw_value__["brandName"]
@@ -197,10 +198,12 @@ class BossType(RawJobType):
                 self.__experience__ = "无需经验"
             elif re.compile("在校生|应届生|在校/应届").match(experience):
                 self.__experience__ = "在校生/应届生"
+            elif re.compile("(本科|硕士|高中|大专)").match(experience):
+                pass
             else:
                 self.__experience__ = self.__raw_value__["jobExperience"] + "经验" if self.__raw_value__[
                     "jobExperience"] else "无需经验"
-                    
+
             if self.__raw_value__["jobDegree"] == "中专/中技":
                 self.__degree__ = "中技/中专"
             else:
@@ -288,9 +291,9 @@ class HookType(RawJobType):
             experience = self.__raw_value__["workYear"]
             if experience == "不限":
                 self.__experience__ = "无需经验"
-            elif experience == "1年以下经验":
+            elif experience == "1年以下":
                 self.__experience__ = "1年以内经验"
-            elif experience == "在校/应届经验":
+            elif experience == "在校/应届":
                 self.__experience__ = "在校生/应届生"
             elif re.compile("(本科|硕士|高中|大专)").match(experience):
                 pass
@@ -368,13 +371,7 @@ class SpiderConfig:
         return self.__cookie__
 
     @cookies.setter
-    def cookies(
-        self,
-        cookies: dict[
-            str,
-        ]
-        | str,
-    ):
+    def cookies(self, cookies: dict[str, ] | str, ):
         """parse to RequestsCookieJar from a string or a dict with a string key and any value
 
         Args:
@@ -413,7 +410,6 @@ class SpiderConfig:
         self.__last_city__ = randomCity
         self.__headers__["User-Agent"] = user_Agent[randint(0, len(user_Agent) - 1)]
         return ""
-        
 
     def __update_max_page__(self, pageAmount: int) -> None:
         """update last city's max pageAmount
@@ -504,7 +500,6 @@ class FiveOneConfig(SpiderConfig):
     }
     __type__ = FiveOneType
     __referer__ = __url__
-
 
     def __init__(self, name: str) -> None:
         self.__cities__ = [
@@ -604,9 +599,14 @@ class BossConfig(SpiderConfig):
         Args:
             cookies (RequestsCookieJar): the response cookie
         """
+        seconds = 0
         seed = cookies.get("__zp_sseed__")
         timestamp = cookies.get("__zp_sts__")
-        requests.get("http://127.0.0.1:5000/getBossNewCookie/seed={}&timestamp={}".format(seed, timestamp))
+        driverer = webdriver.Chrome()
+        try:
+            driverer.get("http://127.0.0.1:5000/getBossNewCookie?seed={}&timestamp={}".format(seed, timestamp))
+        except Exception:
+            pass
         while True:
             with open("./src/newCookie.txt", encoding="utf-8", mode="r+") as file:
                 cookieValue = file.readline()
@@ -614,7 +614,10 @@ class BossConfig(SpiderConfig):
                     self.__cookie__.set("__zp_stoken__", cookieValue)
                     file.write("")
                     break
-                sleep(4)
+            if seconds > 60:
+                break
+            seconds = seconds + 4
+            sleep(4)
 
     def getRawJobsList(self, text: str) -> list[RawJobType]:
         try:

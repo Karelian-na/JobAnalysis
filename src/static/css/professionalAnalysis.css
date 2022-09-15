@@ -14,27 +14,16 @@ form.layui-form {
     padding: 20px;
 }
 
-.layui-row .salary-bar {
-    width: calc(100% - 20px);
-}
-
-
-.layui-row .degree-bar {
-    width: calc(65% - 20px);
-}
-
-.layui-row .degree-pie {
-    width: calc(35% - 20px);
-}
-
-
-
-.layui-row .experience-pie {
-    width: calc(35% - 20px);
-}
-
+.layui-row .salary-bar,
+.layui-row .degree-bar,
 .layui-row .experience-bar {
     width: calc(65% - 20px);
+}
+
+.layui-row .salary-pie,
+.layui-row .degree-pie,
+.layui-row .experience-pie {
+    width: calc(35% - 20px);
 }
 
 

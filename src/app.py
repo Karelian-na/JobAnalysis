@@ -1,10 +1,11 @@
-import re
 import json
 from flask import Flask, render_template, request
 from core.JobAnalysis import JobAnalysis
 from services.JobServices import JobService
 from core.Spider import Spider
 from core.SpiderConfig import FiveOneConfig, BossConfig, ZhiTongConfig, HookConfig
+from src.models.entities import Job
+from selenium import webdriver
 
 app = Flask(__name__)
 jobService = JobService()
@@ -22,18 +23,17 @@ def welcome():
     return render_template("welcome.html", **{"content": content})
 
 
-@app.route("/analysis/<type>", methods=["GET", "POST"])
-def analysis(type):
+@app.route("/analysis/<mode>", methods=["GET", "POST"])
+def analysis(mode):
     if request.method == "GET":
-        if type == "total":
+        if mode == "total":
             categories = list(map(lambda area: area.work_area, jobService.getAllAreas()))
             filterTitle = "地区"
-        elif type == "industry":
+        elif mode == "industry":
             categories = jobService.getAllIndustries(10)
             filterTitle = "行业"
-        elif type == "professional":
-            jobs = jobService.getAll()
-            jobAnalysis.group(jobs, 10)
+        elif mode == "professional":
+            jobAnalysis.group(jobService.getAll(), 10)
             categories = jobAnalysis.__categories__
             return render_template("professionalAnalysis.html", **{
                 "categories": categories,
@@ -46,25 +46,34 @@ def analysis(type):
         return render_template("analysis.html", **{
             "filterTitle": filterTitle,
             "categories": categories,
-            "filter": type,
+            "filter": mode,
         })
     elif request.method == "POST":
-        filter = request.form.get("filter") if request.form.get("filter") else ""
+        filterValue = request.form.get("filterValue") if request.form.get("filterValue") else ""
         groupAmount = int(request.form.get("groupAmount")) if request.form.get("groupAmount") else 10
         minSalary = float(request.form.get("minSalary")) if request.form.get("minSalary") else 1.0
         maxSalary = float(request.form.get("maxSalary")) if request.form.get("maxSalary") else 100.0
 
-        if type == "total":
-            query = jobService.getAllByArea(filter)
-            jobs = jobService.getAllBySalaryInterval(minSalary, maxSalary, query)
-        elif type == "industry":
-            jobs = jobService.getAllByIndustry(filter)
+        data: dict[str, dict[str, float] | dict[str, dict[str, float]]] = {}
 
-        jobAnalysis.group(jobs, groupAmount)
+        allJobs: list[Job] = []
+        if mode == "total":
+            query = jobService.getAllByArea(filterValue)
+            allJobs = jobService.getAllBySalaryInterval(minSalary, maxSalary, query)
+        elif mode == "industry":
+            allJobs = jobService.getAllByIndustry(filterValue)
+        elif mode == "professional":
+            maxSalary = 20 if maxSalary == 100 else maxSalary
+            data.setdefault("salaryIntervalProportion", jobAnalysis.statisticSalaryInterval(filterValue, minSalary, maxSalary, groupAmount))
+            data.setdefault("degreeProportion", jobAnalysis.statisticDegree(filterValue))
+            data.setdefault("experienceProportion", jobAnalysis.statisticExperience(filterValue))
+            jsonValue = json.dumps(data)
+            return jsonValue
 
-        data: dict[str, int | dict[str, int | str]] = {}
+        jobAnalysis.group(allJobs, groupAmount)
+
         data.setdefault("groupProportion", jobAnalysis.statistic())
-        data.setdefault("salaryProportion", jobAnalysis.statisticSalary())
+        data.setdefault("salaryProportion", jobAnalysis.statisticSalaryAverage())
         data.setdefault("degreeProportion", jobAnalysis.statisticDegree(False))
         data.setdefault("categoryDegreeProportion", jobAnalysis.statisticDegree(True))
         data.setdefault("experienceProportion", jobAnalysis.statisticExperience(False))
@@ -79,7 +88,7 @@ def analysis(type):
 
 
 @app.route("/jobs", methods=["GET", "POST"])
-def jobs():
+def jobLists():
     if request.method == "GET":
         return render_template("jobs.html")
     elif request.method == "POST":
@@ -88,7 +97,7 @@ def jobs():
 
         jobs = jobService.get(pageSize, pageIdx)
         count = jobService.getTotalCount()
-        jobList  = [ job.toDict() for job in jobs ]
+        jobList = [ job.toDict() for job in jobs ]
         return json.dumps({
             "code": 0,
             "count": count,
@@ -100,8 +109,14 @@ def jobs():
         })
 
 
-@app.route("/spidy")
-def get():
+@app.route("/spidy", methods=["GET", "POST"])
+def spidy():
+    amount = int(request.args.get("pageAmount")) if request.args.get("pageAmount") else None
+    if not amount or amount < 1:
+        amount = 1
+    else:
+        amount = int(amount) if int(amount) < 100 else 1
+
     cookies: dict[str, str]
     with open("./src/cookie.json", encoding="utf-8", mode="r") as file:
         cookies = json.loads(file.read())
@@ -112,21 +127,28 @@ def get():
     hookConfig = HookConfig("拉钩招聘")
     hookConfig.cookies = cookies.get(hookConfig.__class__.__name__)
 
-    bossConfig = BossConfig("Boss直聘")
-    bossConfig.cookies = cookies.get(bossConfig.__class__.__name__)
+    # bossConfig = BossConfig("Boss直聘")
+    # bossConfig.cookies = cookies.get(bossConfig.__class__.__name__)
 
     zhiTongConfig = ZhiTongConfig("智通人才网")
     zhiTongConfig.cookies = cookies.get(zhiTongConfig.__class__.__name__)
 
-    spilder = Spider(20, configs=[bossConfig])
-    spilder.get(20)
+    spilder = Spider(20, configs=[fiveOneConfig, hookConfig, zhiTongConfig])
+    spilder.get(1)
 
     for config in spilder.configs:
         cookies.setdefault(config.__class__.__name__, config.getCookieString())
 
     with open("./src/cookie.json", encoding="utf-8", mode="w+") as file:
         file.write(json.dumps(cookies))
-    return "ok"
+    
+    # try:
+    #     driverer = webdriver.Edge()
+    #     # driverer.get("http://127.0.0.1:5000/getBossNewCookie?seed={}&timestamp={}".format(seed, timestamp))
+    #     driverer.get("http://127.0.0.1:5000/getBossNewCookie?seed=f9a3eaXo1PjlvITEvNWwZIlI8MSVvMSg4X1hHXgw4EHRcUng8Jz1hTCxuUixiDA48Fx8JB2xCfi07SkUAeHI/VBpgTAgEfwpKXxgbT0EFMxwueE0SNEBINwBFdw8YCHt3VSY7Dj9EXVVyeTk=&timestamp=1663238962260")
+    # except Exception:
+    #     return "fail"
+    # return "success"
 
 
 @app.route("/getBossNewCookie/", methods=["GET"])

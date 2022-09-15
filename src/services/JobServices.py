@@ -1,3 +1,5 @@
+from typing import Type
+
 from src.models.entities import Job, engine
 from sqlalchemy.orm import sessionmaker, Query
 from src.services.BaseService import BaseService
@@ -11,26 +13,25 @@ class JobService(BaseService):
     __categories__: dict[str, list[Job]]
     __jobs__: list[Job]
 
-
-    def getById(self, id: int) -> Job | None:
+    def getById(self, ID: int) -> Job | None:
         """get a job from database
 
         Args:
-            id (int): the job id
+            ID (int): the job id
 
         Returns:
             Job | None: if the database has the job, return the job object, otherwise, None
         """
         return session.query(Job).filter(Job.id == id).one_or_none()
 
-
-    def get(self, amount: int, pageIdx: int):
+    @staticmethod
+    def get(amount: int, pageIdx: int):
         offset = (pageIdx - 1) * amount
         jobs = session.query(Job).offset(offset).limit(amount).all()
         return jobs
 
-
-    def gedAllByName(self, name: str) -> list[Job] | None:
+    @staticmethod
+    def gedAllByName(name: str) -> list[Job] | None:
         """get all jobs from database which name is name
 
         Args:
@@ -44,7 +45,6 @@ class JobService(BaseService):
             return None
         return jobs
 
-
     def getAll(self) -> list[Job] | None:
         """get all record from database, user with caution
 
@@ -56,13 +56,14 @@ class JobService(BaseService):
             return None
         return jobs
 
-
-    def getAllBySalaryInterval(self, min: float, max: float, query: Query = None) -> list[Job]:
-        """get all jobs which salary between min and max
+    @staticmethod
+    def getAllBySalaryInterval(salaryMin: float, salaryMax: float, query: Query = None) -> list[Job]:
+        """get all jobs which salary between salaryMin and salaryMax
 
         Args:
-            min (int): lower of the salary, in thousand, must gretter than 0
-            max (int): upper of the salary, in thousand, must letter than 100
+            salaryMin (int): lower of the salary, in a thousand, must gretter than 0
+            salaryMax (int): upper of the salary, in a thousand, must letter than 100
+            query (Query): the orm query object
 
         Raises:
             Exception: raises when interval is not meet the criteria
@@ -71,52 +72,51 @@ class JobService(BaseService):
             list[Job]: the jobs
         """
 
-        if min < 0 or min > max or max > 100:
+        if salaryMin < 0 or salaryMin > salaryMax or salaryMax > 100:
             raise Exception("不合法的薪资范围!")
 
         if not query:
             query = session.query(Job)
-        jobs = query.filter(Job.salary_min >= str(min), Job.salary_min <= str(max)).all()
+        jobs = query.filter(Job.salary_min >= str(salaryMin), Job.salary_min <= str(salaryMax)).all()
         return jobs
 
-
-    def add(self, job: Job) -> bool:
+    @staticmethod
+    def add(job: Job) -> bool:
         try:
             session.add(job, False)
             session.commit()
             print("{}:{}添加入库成功!".format(job.id, job.name))
             return True
-        except:
+        except Exception:
             session.rollback()
             print("{}:{}添加入库失败!".format(job.id, job.name))
             return False
 
-
-    def bulkAdd(self, jobs: list[Job]) -> None:
+    @staticmethod
+    def bulkAdd(jobs: list[Job]) -> None:
         for job in jobs:
             try:
                 session.add(job, False)
                 session.commit()
-            except:
+            except Exception:
                 continue
 
-
-    def getAllByArea(self, area: str):
+    @staticmethod
+    def getAllByArea(area: str):
         if area == "":
             jobs = session.query(Job)
         else:
             jobs = session.query(Job).filter(Job.work_area == area)
         return jobs
 
-
-    def getAllAreas(self):
+    @staticmethod
+    def getAllAreas():
         areas = session.query(Job.work_area).group_by(Job.work_area).all()
         return areas
 
-
     def getAllIndustries(self, groupAmount):
         self.__jobs__ = self.getAll()
-        types = [ job.type for job in self.__jobs__]
+        types = [job.type for job in self.__jobs__]
 
         vectorizer = TfidfVectorizer(max_features=groupAmount)
         matrix = vectorizer.fit_transform(types).toarray().tolist()
@@ -136,12 +136,11 @@ class JobService(BaseService):
         self.__categories__ = categories
         return self.__categories__
 
-
     def getAllByIndustry(self, industryName):
         if industryName:
-            return  self.__categories__.get(industryName)
+            return self.__categories__.get(industryName)
         return self.__jobs__
 
-
-    def getTotalCount(self) -> int:
+    @staticmethod
+    def getTotalCount() -> int:
         return session.query(Job).count()

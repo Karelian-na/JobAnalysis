@@ -3,7 +3,7 @@ from time import sleep
 from random import randint
 from src.models.entities import Job
 from src.services.JobServices import JobService
-from .SpiderConfig import BossConfig, SpiderConfig, FiveOneConfig
+from src.core.SpiderConfig import SpiderConfig, FiveOneConfig
 
 
 class Spider:
@@ -17,6 +17,7 @@ class Spider:
     @property
     def frequency(self):
         return self.__frequency__
+
     @frequency.setter
     def frequency(self, frequency: int):
         if self.__frequency__ != frequency and frequency >= 5:
@@ -40,7 +41,7 @@ class Spider:
         """
         self.__frequency__ = 5 if spiderFrequency < 5 else spiderFrequency
         self.__configs__ = configs if configs else [
-            FiveOneConfig(2000)
+            FiveOneConfig("前程无忧")
         ]
 
     def addConfig(self, config: SpiderConfig) -> None:
@@ -59,7 +60,7 @@ class Spider:
         jobs: list[Job] = []
         job: Job
 
-        eachConfigAccessedPageAmount = { config.name: 0 for config in self.__configs__ }
+        eachConfigAccessedPageAmount = {config.name: 0 for config in self.__configs__}
         while len(self.__configs__) != 0:
             config = self.__configs__[randint(0, len(self.__configs__) - 1)]
 
@@ -73,6 +74,7 @@ class Spider:
                 self.__configs__.remove(config)
                 continue
 
+            url = ""
             while True:
                 try:
                     url = config.randUrl()
@@ -81,7 +83,7 @@ class Spider:
                     if e.args[0] == "ERROR_NO_MORE_ITEM":
                         return jobs
                     continue
-                
+
             eachConfigAccessedPageAmount[config.name] = eachConfigAccessedPageAmount[config.name] + 1
             res = requests.get(url, headers=config.headers, cookies=config.cookies, timeout=2)
 
@@ -91,7 +93,7 @@ class Spider:
                 config.updateCookies(res.cookies)
                 try:
                     items = config.getRawJobsList(res.text)
-                except:
+                except Exception:
                     print("\n爬取{}的第{}个数据包失败! 服务器回复:{} ".format(config.name, eachConfigAccessedPageAmount[config.name], res.text))
                     self.__configs__.remove(config)
                     continue

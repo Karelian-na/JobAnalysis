@@ -1,40 +1,43 @@
+import re
 from copy import copy
 from src.models.entities import Job
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-class JobAnalysis:
-    __jobs__: list[Job]
-    __categories__: dict[str, list[Job]]
 
+class JobAnalysis:
+    __jobs__: list[Job] = None
+    __categories__: dict[str, list[Job]] = None
+    __categoried_jobs__: list[Job] = None
 
     @property
     def Categories(self):
         return self.__categories__
 
-
     @property
     def Jobs(self):
         return self.__jobs__
 
-
     @classmethod
-    def group(self, jobs: list[Job], groupAmount: int) -> None:
+    def group(cls, jobs: list[Job], groupAmount: int) -> None:
         """Categorize the jobs by job'name 
 
         Args:
             jobs (list[Job]): the jobs will be categorized
 
+        Args:
+            groupAmount (int): the group amount
+
         Raises:
-            Exception: raises when jobs is not an instance of type list[Job]!
+            Exception: raises when jobs are not an instance of type list[Job]!
         """
         if not isinstance(jobs, list):
             raise Exception("Type Error! jobs is not an instance of type list[Job]!")
-        self.__jobs__ = jobs
-        
-        names = [ job.name for job in jobs]
+        cls.__jobs__ = jobs
 
-        vectorizer = TfidfVectorizer(max_features=groupAmount)
-        matrix = vectorizer.fit_transform(names).toarray().tolist()
+        names = [job.name or "" for job in jobs]
+
+        vectorizer: TfidfVectorizer = TfidfVectorizer(max_features=groupAmount)
+        matrix: list[list[float]] = vectorizer.fit_transform(names).toarray().tolist()
         topJobNames: list[str] = vectorizer.get_feature_names_out().tolist()
 
         categories: dict[str, list[Job]] = dict()
@@ -48,25 +51,28 @@ class JobAnalysis:
                     categories.get(topJobNames[_idx]).append(jobs[idx])
                     break
 
-        self.__categories__ = categories
-
+        cls.__categories__ = {}
+        cls.__categoried_jobs__ = []
+        for category in categories:
+            if not re.compile(".*(吃住|薪|休|五险一金)").match(category) and len(categories.get(category)) != 0:
+                cls.__categories__.setdefault(category, categories.get(category))
+                cls.__categoried_jobs__.extend(categories.get(category))
 
     @classmethod
-    def statistic(self) -> dict[str, int]:
+    def statistic(cls) -> dict[str, int]:
         """statistic jobs' amount under each category
 
         Returns:
             dict[str, int]: the result, str specified category name, int specified its jobs' amount
         """
         result: dict[str, int] = dict()
-        for category in self.__categories__:
-            result.setdefault(category, len(self.__categories__.get(category)))
+        for category in cls.__categories__:
+            result.setdefault(category, len(cls.__categories__.get(category)))
 
         return result
 
-
     @classmethod
-    def statisticDegree(self, isCategory: bool) -> dict[str, dict[str, int]] | dict[str, int]:
+    def statisticDegree(cls, isCategory: bool | str) -> dict[str, dict[str, int]] | dict[str, int]:
         """statistic jobs' degree group under each category
 
         Args:
@@ -86,25 +92,26 @@ class JobAnalysis:
             "硕士": 0,
             "博士": 0,
         }
-        result: dict[str, dict[str, int]] | dict[str, int]
-        if isCategory:
-            result = { category: copy(degrees) for category in self.__categories__ }
+        result: dict[str, int | dict[str, int]] | dict[str, int]
+        if isinstance(isCategory, str) or not isCategory:
+            result = degrees
+
+            jobs = cls.__categories__.get(isCategory) if isCategory else cls.__categoried_jobs__
+            for job in jobs:
+                count = result.get(job.degree)
+                result.update({job.degree: count + 1})
+        else:
+            result = {category: copy(degrees) for category in cls.__categories__}
             for category in result:
-                jobs = self.__categories__.get(category)
+                jobs = cls.__categories__.get(category)
                 groups = result.get(category)
                 for job in jobs:
                     count = groups.get(job.degree)
-                    groups.update({ job.degree: count + 1 })
-        else:
-            result = degrees
-            for job in self.__jobs__:
-                count = result.get(job.degree)
-                result.update({ job.degree: count + 1 })
+                    groups.update({job.degree: count + 1})
 
         return result
 
-
-    def statisticExperience(self, isCategory: bool) -> dict[str, dict[str, int]] | dict[str, int]:
+    def statisticExperience(self, isCategory: bool | str) -> dict[str, dict[str, int]] | dict[str, int]:
         """statistic jobs' experience group under each category
 
         Args:
@@ -121,32 +128,33 @@ class JobAnalysis:
             "1-3年经验": 0,
             "3-5年经验": 0,
             "5-10年经验": 0,
-            "10年及以上经验": 0,
+            "10年以上经验": 0,
         }
         result: dict[str, dict[str, int]] | dict[str, int]
-        if isCategory:
-            result = { category: copy(experiences) for category in self.__categories__ }
+        if isinstance(isCategory, str) or not isCategory:
+            result = experiences
+
+            jobs = self.__categories__.get(isCategory) if isCategory else self.__categoried_jobs__
+            for job in jobs:
+                count = int(result.get(job.experience))
+                result.update({job.experience: count + 1})
+        else:
+            result = {category: copy(experiences) for category in self.__categories__}
             for category in result:
                 jobs = self.__categories__.get(category)
                 groups = result.get(category)
                 for job in jobs:
                     count = groups.get(job.experience)
-                    groups.update({ job.experience: count + 1 })
-        else:
-            result = experiences
-            for job in self.__jobs__:
-                count = result.get(job.experience)
-                result.update({ job.experience: count + 1 })
+                    groups.update({job.experience: count + 1})
         return result
 
-
-    def statisticSalary(self) -> dict[str, str]:
+    def statisticSalaryAverage(self) -> dict[str, dict[str, float]]:
         """statistic jobs' salary interval under each category
 
         Returns:
             dict[str, str]: str specified category name, str specified interval like "6.5k-8.5k"
         """
-        result: dict[str, str] = dict()
+        result: dict[str, dict[str, float]] = dict()
         for category in self.__categories__:
             jobs = self.__categories__.get(category)
             averageMinSalary: int = 0
@@ -166,6 +174,35 @@ class JobAnalysis:
 
         return result
 
+    def statisticSalaryInterval(self, categoryName: str, salaryMin: float, salaryMax: float, groupAmount: int = None) -> dict[str, int]:
+        delta = salaryMax - salaryMin
+        if salaryMax < 0 or delta < 0:
+            raise Exception("分段错误!")
+
+        groupAmount = groupAmount or 5
+        stepLength = (delta / groupAmount).__round__(1)
+
+        interval = [salaryMin + (stepLength * idx).__round__(1) for idx in range(0, groupAmount)]
+        interval.append(salaryMax)
+
+        result: dict[str, int] = {}
+        for idx in range(0, len(interval) - 2):
+            result.setdefault("{}k-{}k".format(interval[idx], interval[idx + 1]), 0)
+        result.setdefault("{}k-{}k".format(interval[groupAmount - 1], salaryMax), 0)
+
+        jobs = self.__categories__.get(categoryName) if categoryName else self.__categoried_jobs__
+        for job in jobs:
+            ave = ((job.salary_min + job.salary_max) / 2).__round__(1)
+            if ave < salaryMin or ave > salaryMax:
+                continue
+
+            for idx in range(0, len(interval) - 1):
+                if ave < interval[idx + 1]:
+                    key = list(result.keys())[idx]
+                    result.update({key: result[key] + 1})
+                    break
+
+        return result
 
     def analysisRelation(self):
         pass

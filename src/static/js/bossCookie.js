@@ -9,7 +9,9 @@ $.ajax({
     url: "/setBossNewCookie",
     data: `value=${newCookie}`,
     success: (result) => {
-        console.log(result)
+        document.body.textContent = newCookie;
+        window.opener = null;
+        window.close();
     },
     error: (_xhr, _status, _error) => {
         window.alert(_error);
