@@ -34,4 +34,4 @@ SELECT type FROM jobs GROUP BY type
 
 SELECT * FROM jobs WHERE id = "000ff605dd5b84991XB-09u0F1NW"
 
-SELECT * FROM jobs WHERE experience = "大专"
+SELECT * FROM jobs WHERE experience = "本科"

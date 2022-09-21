@@ -1,17 +1,91 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>E Work.</title>
     <style>
-        body{
-            background-image: url("../static/img/iframe_background.png");
-            background-repeat: no-repeat;
+        body {
+            background: radial-gradient(#f2f2f3, #fefcfa);
+            background-size: 400px 400px;
+            overflow: hidden;
+            padding-top: 200px;
+        }
+
+        .Logo,.message {
+            text-align: center;
+            font-family: "Cambria";
+            font-size: 200px;
+            padding-left: 60px;
+            font-weight: 800;
+            -webkit-animation: netflix_style 1.5s;
+            /*设置动画*/
+            animation-fill-mode: forwards;
+            outline: none;
+            white-space: nowrap;
+        }
+
+         .message {
+            text-align: center;
+            font-family: "楷体";
+            font-size: 36px;
+            padding-top: 10px;
+            color: #34126a;
+        } 
+        @-webkit-keyframes netflix_style {
+
+            /*创建动画*/
+            0%,
+            10% {
+                color: #34126a;
+                transform: scale(1.5, 1.5);
+            }
+
+            15% {
+                color: #3d3d80;
+            }
+
+            20% {
+                color: #3f518d;
+                transform: scale(1.1, 1.1);
+            }
+
+            30% {
+                opacity: 1;
+                color: #416195;
+            }
+
+            40% {
+                opacity: 1;
+                color: #427ea4;
+            }
+
+            50% {
+                color: #418faf;
+            }
+
+            75% {
+                opacity: 1;
+                color: #3da8bc;
+            }
+
+            80% {
+                opacity: 0;
+                color: #3da8bc;
+                transform: scale(0.85, 0.9);
+            }
+
+            100% {
+                opacity: 1;
+                color:  #434c69;
+            }
         }
     </style>
 </head>
+
 <body>
+    <div class="Logo">E Work.</div>
+    <div class="message">招聘数据分析平台</div>
 </body>
+
 </html>

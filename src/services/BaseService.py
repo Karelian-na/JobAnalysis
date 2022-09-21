@@ -1,5 +1,5 @@
 import abc
-from src.models.entities import EntityBase
+from models.entities import EntityBase
 
 
 class BaseService:

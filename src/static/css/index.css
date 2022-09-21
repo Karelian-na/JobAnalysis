@@ -22,8 +22,8 @@ body {
 
 /* 顶部nav */
 .top-nav{
-    /* height: 50px; */
-    line-height: 55px;
+    height: 50px;
+    line-height: 50px;
     background-color:#393D49;
 }
 .top-nav p{
@@ -35,6 +35,7 @@ body {
     height: 55px;
 }
 .top-nav p img{
+    height: 50px;
     width: 200px;
 }
 .top-nav p img:nth-child(1){
@@ -65,8 +66,7 @@ body .layui-nav-tree{
 
 iframe{
     flex-grow: 1;
+    /* width: calc(80% - 200px); */
     background-color: #dfe0e3;
-    /* background-image: url("../img/iframe_background.png"); */
     background-repeat: no-repeat;
-    /* background-size: 1336px 656px; */
 }

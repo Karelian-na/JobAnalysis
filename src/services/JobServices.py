@@ -1,8 +1,8 @@
 from typing import Type
 
-from src.models.entities import Job, engine
+from models.entities import Job, engine
 from sqlalchemy.orm import sessionmaker, Query
-from src.services.BaseService import BaseService
+from services.BaseService import BaseService
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 maker = sessionmaker(engine)
@@ -77,7 +77,8 @@ class JobService(BaseService):
 
         if not query:
             query = session.query(Job)
-        jobs = query.filter(Job.salary_min >= str(salaryMin), Job.salary_min <= str(salaryMax)).all()
+        jobs = query.filter(Job.salary_min >= str(
+            salaryMin), Job.salary_min <= str(salaryMax)).all()
         return jobs
 
     @staticmethod
@@ -130,7 +131,8 @@ class JobService(BaseService):
             item = matrix[idx]
             for _idx in range(0, len(item)):
                 if item[_idx] > 0.8:
-                    categories.get(topJobNames[_idx]).append(self.__jobs__[idx])
+                    categories.get(topJobNames[_idx]).append(
+                        self.__jobs__[idx])
                     break
 
         self.__categories__ = categories
@@ -144,3 +146,36 @@ class JobService(BaseService):
     @staticmethod
     def getTotalCount() -> int:
         return session.query(Job).count()
+
+    def getByField(slef, search_field: str, search_content: str, pageIdx: int, pageSize: int):
+        # select_sql = "SELECT * FROM jobs WHERE search_field LIKE '%{}%' LIMIT(pageIdx - 1) * pageSize, pageSize".format(
+        #     search_content)
+        offset = (pageIdx - 1) * pageSize
+        # search_field和search_content都为空
+        if not search_field and not search_content:
+            jobs = session.query(Job).offset(offset).limit(pageSize).all()
+            jobList = [job.toDict() for job in jobs]
+            return jobList
+        # search_field和search_content都不为空
+        elif search_field and search_content:
+            jobs = session.execute("SELECT * FROM jobs WHERE {} LIKE '%{}%' LIMIT {}, {}".format(
+                search_field, search_content, (pageIdx - 1) * pageSize, pageSize)).all()
+            jobList = [dict(job._mapping) for job in jobs]
+            return jobList
+        else:
+            return False
+
+    def getCountByField(self, search_field: str, search_content: str, pageIdx: int, pageSize: int):
+        # search_field和search_content都为空
+        if not search_field and not search_content:
+            count = list(session.execute("SELECT COUNT(*) FROM jobs".format(
+                search_field, search_content)))[0][0]
+            return session.query(Job).count()
+
+         # search_field和search_content都不为空
+        elif search_field and search_content:
+            count = list(session.execute("SELECT COUNT(*) FROM jobs WHERE {} LIKE '%{}%'".format(
+                search_field, search_content)))[0][0]
+            return count
+        else:
+            return False

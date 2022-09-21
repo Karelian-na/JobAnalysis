@@ -3,35 +3,35 @@
 
 
 "@types/echarts@^4.9.16":
-  version "4.9.16"
-  resolved "https://repo.huaweicloud.com/repository/npm/@types/echarts/-/echarts-4.9.16.tgz#7156aea4623f3543b083200f6c65e04d3693bcc8"
-  integrity sha512-bfiagfPw3dWauAIJ9fgoJQoL4hLWlGcltqwbE6LGye0NIY5xnbZau+mDmadCzGojic3MWuFDCUiO25kl4sRGeA==
+  "integrity" "sha512-bfiagfPw3dWauAIJ9fgoJQoL4hLWlGcltqwbE6LGye0NIY5xnbZau+mDmadCzGojic3MWuFDCUiO25kl4sRGeA=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/@types/echarts/-/echarts-4.9.16.tgz"
+  "version" "4.9.16"
   dependencies:
     "@types/zrender" "*"
 
 "@types/jquery@^3.5.14":
-  version "3.5.14"
-  resolved "https://repo.huaweicloud.com/repository/npm/@types/jquery/-/jquery-3.5.14.tgz#ac8e11ee591e94d4d58da602cb3a5a8320dee577"
-  integrity sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg==
+  "integrity" "sha512-X1gtMRMbziVQkErhTQmSe2jFwwENA/Zr+PprCkF63vFq+Yt5PZ4AlKqgmeNlwgn7dhsXEK888eIW2520EpC+xg=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/@types/jquery/-/jquery-3.5.14.tgz"
+  "version" "3.5.14"
   dependencies:
     "@types/sizzle" "*"
 
 "@types/layui-src@^2.6.0":
-  version "2.6.0"
-  resolved "https://repo.huaweicloud.com/repository/npm/@types/layui-src/-/layui-src-2.6.0.tgz#35ae2e2264a28e9f5d75a696311c146599bc3deb"
-  integrity sha512-wntTWCh7KHIWwa+79t1SbCbGK4X8bfjn5Dr+toYRjOw9K3DFBB6PU/I9wLqJQVJoQzSlANmVGm/ytQaZjMilmA==
+  "integrity" "sha512-wntTWCh7KHIWwa+79t1SbCbGK4X8bfjn5Dr+toYRjOw9K3DFBB6PU/I9wLqJQVJoQzSlANmVGm/ytQaZjMilmA=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/@types/layui-src/-/layui-src-2.6.0.tgz"
+  "version" "2.6.0"
 
 "@types/sizzle@*":
-  version "2.3.3"
-  resolved "https://repo.huaweicloud.com/repository/npm/@types/sizzle/-/sizzle-2.3.3.tgz#ff5e2f1902969d305225a047c8a0fd5c915cebef"
-  integrity sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ==
+  "integrity" "sha512-JYM8x9EGF163bEyhdJBpR2QX1R5naCJHC8ucJylJ3w9/CVBaskdQ8WqBf8MmQrd1kRvp/a4TS8HJ+bxzR7ZJYQ=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/@types/sizzle/-/sizzle-2.3.3.tgz"
+  "version" "2.3.3"
 
 "@types/zrender@*":
-  version "4.0.3"
-  resolved "https://repo.huaweicloud.com/repository/npm/@types/zrender/-/zrender-4.0.3.tgz#d18b31648b2f11b9ec672a560836e1887a965ec1"
-  integrity sha512-EPI269lkHNsObwILJ1k1z7znLjKyePuWRy/XKK0shSGpBb9cIX307arcwJV4+2NeZj5wEjN06r4D8yFv7sI06g==
+  "integrity" "sha512-EPI269lkHNsObwILJ1k1z7znLjKyePuWRy/XKK0shSGpBb9cIX307arcwJV4+2NeZj5wEjN06r4D8yFv7sI06g=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/@types/zrender/-/zrender-4.0.3.tgz"
+  "version" "4.0.3"
 
-layui@^2.8.0-beta.2:
-  version "2.8.0-beta.2"
-  resolved "https://repo.huaweicloud.com/repository/npm/layui/-/layui-2.8.0-beta.2.tgz#39e411bc87272a1434066eff6d97a4f7b20d794e"
-  integrity sha512-UPWWYH7tFNfQOMO/MRjglqsmIOeNoR0vaZkXgBK1VVyOCKrN07MSDaVVp7k/h0wu4r/XKNhyvYGGkfzhsWWHsA==
+"layui@^2.8.0-beta.2":
+  "integrity" "sha512-UPWWYH7tFNfQOMO/MRjglqsmIOeNoR0vaZkXgBK1VVyOCKrN07MSDaVVp7k/h0wu4r/XKNhyvYGGkfzhsWWHsA=="
+  "resolved" "https://repo.huaweicloud.com/repository/npm/layui/-/layui-2.8.0-beta.2.tgz"
+  "version" "2.8.0-beta.2"

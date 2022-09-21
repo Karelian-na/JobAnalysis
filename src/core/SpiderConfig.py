@@ -5,7 +5,7 @@ from time import sleep
 from random import randint
 from datetime import datetime
 from typing import Mapping, Type
-from src.models.entities import Job
+from models.entities import Job
 from requests.cookies import RequestsCookieJar
 from selenium import webdriver
 

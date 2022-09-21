@@ -17,6 +17,14 @@ document.addEventListener("DOMContentLoaded", () => {
             method: "POST",
             data: $(form).serialize(),
             url: `/analysis/${window.location.href.substring(window.location.href.lastIndexOf("/") + 1)}`,
+            beforeSend: function () {
+                index_wait = layer.load(0, {  //发送请求前调用load方法
+                    shade: [0.5, '#fff'],  //0.5透明度的白色背景
+                });
+            },
+            complete: function () {  //load默认不会关闭，请求完成需要在complete回调中关闭
+                layer.close(index_wait);
+            },
             success: (result) => {
                 data = JSON.parse(result);
                 renderSalaryChart(data);
@@ -56,7 +64,7 @@ document.addEventListener("DOMContentLoaded", () => {
         salaryPieChart.clear();
         salaryPieChart.setOption({
             title: {
-                text: `当前职业所需学历占比`,
+                text: `当前职业薪资占比`,
                 left: "center",
             },
             legend: {
@@ -107,7 +115,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const degreeData = data["degreeProportion"];
         degreePieChart.setOption({
             title: {
-                text: `所有职业所需学历占比`,
+                text: `当前职业所需学历占比`,
                 left: "center",
             },
             legend: {

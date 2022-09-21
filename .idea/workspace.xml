@@ -1,19 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="c7355948-51da-4c91-a1b3-e359652224fb" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/src/templates/404.html" afterDir="false" />
+    <list default="true" id="c7355948-51da-4c91-a1b3-e359652224fb" name="Default Changelist" comment="Default Changelist">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.vscode/settings.json" beforeDir="false" afterPath="$PROJECT_DIR$/.vscode/settings.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/cookie.json" beforeDir="false" afterPath="$PROJECT_DIR$/src/cookie.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/core/JobAnalysis.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/JobAnalysis.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/Spider.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/Spider.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/core/SpiderConfig.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/core/SpiderConfig.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/models/entities.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/models/entities.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/services/BaseService.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/BaseService.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/services/JobServices.py" beforeDir="false" afterPath="$PROJECT_DIR$/src/services/JobServices.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/static/css/professionalAnalysis.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/css/professionalAnalysis.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/sqlCommand.sql" beforeDir="false" afterPath="$PROJECT_DIR$/src/sqlCommand.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/css/analysis.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/css/analysis.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/css/index.css" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/css/index.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/img/iframe_background.psd" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/js/analysis.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/js/analysis.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/js/jobs.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/js/jobs.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/static/js/professionalAnalysis.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/static/js/professionalAnalysis.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/404.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/404.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/templates/analysis.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/analysis.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/index.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/templates/professionalAnalysis.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/professionalAnalysis.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/jobs.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/jobs.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/templates/welcome.html" beforeDir="false" afterPath="$PROJECT_DIR$/src/templates/welcome.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,12 +118,16 @@
     <option name="showLibraryContents" value="true" />
     <option name="showMembers" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.keymap&quot;
-  }
-}</component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="node.js.detected.package.eslint" value="true" />
+    <property name="node.js.detected.package.tslint" value="true" />
+    <property name="node.js.selected.package.eslint" value="(autodetect)" />
+    <property name="node.js.selected.package.tslint" value="(autodetect)" />
+    <property name="nodejs_package_manager_path" value="yarn" />
+  </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="G:\My Program\JobAnalysis\src\static\js\libs" />
@@ -169,6 +183,9 @@
       <workItem from="1663201748316" duration="6487000" />
       <workItem from="1663214576856" duration="2408000" />
       <workItem from="1663222380840" duration="6232000" />
+      <workItem from="1663489930687" duration="1619000" />
+      <workItem from="1663551128629" duration="2363000" />
+      <workItem from="1663563275392" duration="16000" />
     </task>
     <servers />
   </component>

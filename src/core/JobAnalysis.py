@@ -1,6 +1,6 @@
 import re
 from copy import copy
-from src.models.entities import Job
+from models.entities import Job
 from sklearn.feature_extraction.text import TfidfVectorizer
 
 
@@ -31,13 +31,15 @@ class JobAnalysis:
             Exception: raises when jobs are not an instance of type list[Job]!
         """
         if not isinstance(jobs, list):
-            raise Exception("Type Error! jobs is not an instance of type list[Job]!")
+            raise Exception(
+                "Type Error! jobs is not an instance of type list[Job]!")
         cls.__jobs__ = jobs
 
         names = [job.name or "" for job in jobs]
 
         vectorizer: TfidfVectorizer = TfidfVectorizer(max_features=groupAmount)
-        matrix: list[list[float]] = vectorizer.fit_transform(names).toarray().tolist()
+        matrix: list[list[float]] = vectorizer.fit_transform(
+            names).toarray().tolist()
         topJobNames: list[str] = vectorizer.get_feature_names_out().tolist()
 
         categories: dict[str, list[Job]] = dict()
@@ -55,7 +57,8 @@ class JobAnalysis:
         cls.__categoried_jobs__ = []
         for category in categories:
             if not re.compile(".*(吃住|薪|休|五险一金)").match(category) and len(categories.get(category)) != 0:
-                cls.__categories__.setdefault(category, categories.get(category))
+                cls.__categories__.setdefault(
+                    category, categories.get(category))
                 cls.__categoried_jobs__.extend(categories.get(category))
 
     @classmethod
@@ -96,12 +99,14 @@ class JobAnalysis:
         if isinstance(isCategory, str) or not isCategory:
             result = degrees
 
-            jobs = cls.__categories__.get(isCategory) if isCategory else cls.__categoried_jobs__
+            jobs = cls.__categories__.get(
+                isCategory) if isCategory else cls.__categoried_jobs__
             for job in jobs:
                 count = result.get(job.degree)
                 result.update({job.degree: count + 1})
         else:
-            result = {category: copy(degrees) for category in cls.__categories__}
+            result = {category: copy(degrees)
+                      for category in cls.__categories__}
             for category in result:
                 jobs = cls.__categories__.get(category)
                 groups = result.get(category)
@@ -134,12 +139,14 @@ class JobAnalysis:
         if isinstance(isCategory, str) or not isCategory:
             result = experiences
 
-            jobs = self.__categories__.get(isCategory) if isCategory else self.__categoried_jobs__
+            jobs = self.__categories__.get(
+                isCategory) if isCategory else self.__categoried_jobs__
             for job in jobs:
                 count = int(result.get(job.experience))
                 result.update({job.experience: count + 1})
         else:
-            result = {category: copy(experiences) for category in self.__categories__}
+            result = {category: copy(experiences)
+                      for category in self.__categories__}
             for category in result:
                 jobs = self.__categories__.get(category)
                 groups = result.get(category)
@@ -182,15 +189,19 @@ class JobAnalysis:
         groupAmount = groupAmount or 5
         stepLength = (delta / groupAmount).__round__(1)
 
-        interval = [salaryMin + (stepLength * idx).__round__(1) for idx in range(0, groupAmount)]
+        interval = [salaryMin + (stepLength * idx).__round__(1)
+                    for idx in range(0, groupAmount)]
         interval.append(salaryMax)
 
         result: dict[str, int] = {}
         for idx in range(0, len(interval) - 2):
-            result.setdefault("{}k-{}k".format(interval[idx], interval[idx + 1]), 0)
-        result.setdefault("{}k-{}k".format(interval[groupAmount - 1], salaryMax), 0)
+            result.setdefault(
+                "{}k-{}k".format(interval[idx], interval[idx + 1]), 0)
+        result.setdefault(
+            "{}k-{}k".format(interval[groupAmount - 1], salaryMax), 0)
 
-        jobs = self.__categories__.get(categoryName) if categoryName else self.__categoried_jobs__
+        jobs = self.__categories__.get(
+            categoryName) if categoryName else self.__categoried_jobs__
         for job in jobs:
             ave = ((job.salary_min + job.salary_max) / 2).__round__(1)
             if ave < salaryMin or ave > salaryMax:
