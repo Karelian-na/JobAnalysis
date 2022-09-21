@@ -1,9 +1,9 @@
 import requests
 from time import sleep
 from random import randint
-from src.models.entities import Job
-from src.services.JobServices import JobService
-from src.core.SpiderConfig import SpiderConfig, FiveOneConfig
+from models.entities import Job
+from services.JobServices import JobService
+from core.SpiderConfig import SpiderConfig, FiveOneConfig
 
 
 class Spider:

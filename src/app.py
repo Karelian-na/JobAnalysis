@@ -1,15 +1,22 @@
+from itertools import tee
 import json
+import re
 from flask import Flask, render_template, request
 from core.JobAnalysis import JobAnalysis
-from services.JobServices import JobService
+from services.JobServices import JobService, session
 from core.Spider import Spider
 from core.SpiderConfig import FiveOneConfig, BossConfig, ZhiTongConfig, HookConfig
-from src.models.entities import Job
+from models.entities import Job
 from selenium import webdriver
 
 app = Flask(__name__)
 jobService = JobService()
 jobAnalysis = JobAnalysis()
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template("404.html"), 404
 
 
 @app.route("/")
@@ -23,11 +30,17 @@ def welcome():
     return render_template("welcome.html", **{"content": content})
 
 
+@app.route('/404')
+def notFound():
+    return render_template("404.html")
+
+
 @app.route("/analysis/<mode>", methods=["GET", "POST"])
 def analysis(mode):
     if request.method == "GET":
         if mode == "total":
-            categories = list(map(lambda area: area.work_area, jobService.getAllAreas()))
+            categories = list(
+                map(lambda area: area.work_area, jobService.getAllAreas()))
             filterTitle = "地区"
         elif mode == "industry":
             categories = jobService.getAllIndustries(10)
@@ -49,35 +62,47 @@ def analysis(mode):
             "filter": mode,
         })
     elif request.method == "POST":
-        filterValue = request.form.get("filterValue") if request.form.get("filterValue") else ""
-        groupAmount = int(request.form.get("groupAmount")) if request.form.get("groupAmount") else 10
-        minSalary = float(request.form.get("minSalary")) if request.form.get("minSalary") else 1.0
-        maxSalary = float(request.form.get("maxSalary")) if request.form.get("maxSalary") else 100.0
+        filterValue = request.form.get(
+            "filterValue") if request.form.get("filterValue") else ""
+        groupAmount = int(request.form.get("groupAmount")
+                          ) if request.form.get("groupAmount") else 10
+        minSalary = float(request.form.get("minSalary")
+                          ) if request.form.get("minSalary") else 1.0
+        maxSalary = float(request.form.get("maxSalary")
+                          ) if request.form.get("maxSalary") else 100.0
 
         data: dict[str, dict[str, float] | dict[str, dict[str, float]]] = {}
 
         allJobs: list[Job] = []
         if mode == "total":
             query = jobService.getAllByArea(filterValue)
-            allJobs = jobService.getAllBySalaryInterval(minSalary, maxSalary, query)
+            allJobs = jobService.getAllBySalaryInterval(
+                minSalary, maxSalary, query)
         elif mode == "industry":
             allJobs = jobService.getAllByIndustry(filterValue)
         elif mode == "professional":
             maxSalary = 20 if maxSalary == 100 else maxSalary
-            data.setdefault("salaryIntervalProportion", jobAnalysis.statisticSalaryInterval(filterValue, minSalary, maxSalary, groupAmount))
-            data.setdefault("degreeProportion", jobAnalysis.statisticDegree(filterValue))
-            data.setdefault("experienceProportion", jobAnalysis.statisticExperience(filterValue))
+            data.setdefault("salaryIntervalProportion", jobAnalysis.statisticSalaryInterval(
+                filterValue, minSalary, maxSalary, groupAmount))
+            data.setdefault("degreeProportion",
+                            jobAnalysis.statisticDegree(filterValue))
+            data.setdefault("experienceProportion",
+                            jobAnalysis.statisticExperience(filterValue))
             jsonValue = json.dumps(data)
             return jsonValue
 
         jobAnalysis.group(allJobs, groupAmount)
 
         data.setdefault("groupProportion", jobAnalysis.statistic())
-        data.setdefault("salaryProportion", jobAnalysis.statisticSalaryAverage())
+        data.setdefault("salaryProportion",
+                        jobAnalysis.statisticSalaryAverage())
         data.setdefault("degreeProportion", jobAnalysis.statisticDegree(False))
-        data.setdefault("categoryDegreeProportion", jobAnalysis.statisticDegree(True))
-        data.setdefault("experienceProportion", jobAnalysis.statisticExperience(False))
-        data.setdefault("categoryExperienceProportion", jobAnalysis.statisticExperience(True))
+        data.setdefault("categoryDegreeProportion",
+                        jobAnalysis.statisticDegree(True))
+        data.setdefault("experienceProportion",
+                        jobAnalysis.statisticExperience(False))
+        data.setdefault("categoryExperienceProportion",
+                        jobAnalysis.statisticExperience(True))
 
         jsonValue = json.dumps(data)
         return jsonValue
@@ -90,28 +115,46 @@ def analysis(mode):
 @app.route("/jobs", methods=["GET", "POST"])
 def jobLists():
     if request.method == "GET":
-        return render_template("jobs.html")
+        fields = []
+        res = session.execute(
+            "SELECT COLUMN_NAME FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA = 'jobanalysis' AND TABLE_NAME = 'jobs'").all()
+        print(res, type(res))
+        for item in res:
+            if item[0] != "salary_sys":
+                result = item[0]
+                fields.append(result)
+            else:
+                continue
+        return render_template("jobs.html", **{
+            "fields": fields
+        })
     elif request.method == "POST":
+        search_field = request.form.get("search_field")
+        search_content = request.form.get("search_content")
         pageIdx = int(request.form.get("pageIdx"))
         pageSize = int(request.form.get("pageSize"))
-
-        jobs = jobService.get(pageSize, pageIdx)
-        count = jobService.getTotalCount()
-        jobList = [ job.toDict() for job in jobs ]
+        # 获取所有job
+        jobs = jobService.getByField(
+            search_field, search_content, pageIdx, pageSize)
+        # 获取job的数量
+        count = jobService.getCountByField(
+            search_field, search_content, pageIdx, pageSize)
         return json.dumps({
             "code": 0,
             "count": count,
-            "data": jobList
+            "data": jobs
         })
+
     else:
         return render_template("404.html", **{
             "msg": "您所请求方式错误!"
         })
 
 
-@app.route("/spidy", methods=["GET", "POST"])
+@ app.route("/spidy", methods=["GET", "POST"])
 def spidy():
-    amount = int(request.args.get("pageAmount")) if request.args.get("pageAmount") else None
+    amount = int(request.args.get("pageAmount")
+                 ) if request.args.get("pageAmount") else None
     if not amount or amount < 1:
         amount = 1
     elif amount > 100:
@@ -141,7 +184,7 @@ def spidy():
 
     with open("./src/cookie.json", encoding="utf-8", mode="w+") as file:
         file.write(json.dumps(cookies))
-    
+
     # try:
     #     driverer = webdriver.Edge()
     #     # driverer.get("http://127.0.0.1:5000/getBossNewCookie?seed={}&timestamp={}".format(seed, timestamp))
@@ -151,7 +194,7 @@ def spidy():
     return "success"
 
 
-@app.route("/getBossNewCookie/", methods=["GET"])
+@ app.route("/getBossNewCookie/", methods=["GET"])
 def getBossNewCookie():
     seed = request.args.get("seed")
     timestamp = request.args.get("timestamp")
@@ -160,7 +203,7 @@ def getBossNewCookie():
         "timeStamp": timestamp})
 
 
-@app.route("/setBossNewCookie/", methods=["GET"])
+@ app.route("/setBossNewCookie/", methods=["GET"])
 def setBossNewCookie():
     newValue = request.args.get("value")
     with open("./src/newCookie.txt", encoding="utf-8", mode="w+") as file:
@@ -169,4 +212,5 @@ def setBossNewCookie():
 
 
 if __name__ == "__main__":
-    app.run("localhost", 5000, True)
+    # res_list = jobService.getByField("experience", "无需经验", 5, 20)
+    app.run("localhost", 5001, True)

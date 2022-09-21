@@ -16,5 +16,6 @@
 	"liveServer.settings.root": "/src",
 	"prettier.useTabs": false,
     "editor.insertSpaces": true,
-    "editor.detectIndentation": false
+    "editor.detectIndentation": false,
+    "editor.accessibilitySupport": "off"
 }

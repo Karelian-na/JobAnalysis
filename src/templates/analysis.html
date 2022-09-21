@@ -9,12 +9,13 @@
     <link rel="stylesheet" href="../static/css/common.css" />
     <link rel="stylesheet" href="../static/css/analysis.css" />
     <link rel="stylesheet" href="../static/css/layui.css" />
+    
 </head>
 
 <body>
-    <form class="layui-form" action="">
-        <div class="layui-form-item layui-inline">
-            <label class="layui-form-label">选择{{ filterTitle }}</label>
+    <form class="layui-form layui-form-pane" action="">
+        <div class="layui-form-item layui-inline" id="layui-form-item1">
+            <label class="layui-form-label">选择{{ filterTitle }}:</label>
             <div class="layui-input-block">
                 <select name="filterValue">
                     <option value="">所有{{ filterTitle }} </option>
@@ -24,29 +25,25 @@
                 </select>
             </div>
         </div>
-        <div class="layui-form-item layui-inline">
-            <div class="layui-inline">
-                <label class="layui-form-label">薪资范围:</label>
-                <div class="layui-input-inline" style="width: 100px">
-                    <input type="text" name="minSalary" placeholder="1" autocomplete="off" class="layui-input" />
-                </div>
-                <div class="layui-form-mid">-</div>
-                <div class="layui-input-inline" style="width: 100px">
-                    <input type="text" name="maxSalary" placeholder="100" autocomplete="off" class="layui-input" />
-                </div>
+        <div class="layui-form-item layui-inline" id="layui-form-item2">
+            <label class="layui-form-label">薪资范围:</label>
+            <div class="layui-input-inline" style="width: 100px">
+                <input type="text" name="minSalary" placeholder="1" autocomplete="off" class="layui-input" />
+            </div>
+            <div class="layui-form-mid">-</div>
+            <div class="layui-input-inline" style="width: 100px">
+                <input type="text" name="maxSalary" placeholder="100" autocomplete="off" class="layui-input" />
             </div>
         </div>
-        <div class="layui-form-item layui-inline">
+        <div class="layui-form-item layui-inline" id="layui-form-item3">
             <label class="layui-form-label">分组数量:</label>
             <div class="layui-input-inline">
                 <input name="groupAmount" placeholder="输入分组数量" type="number" autocomplete="off" class="layui-input">
             </div>
         </div>
-        <div class="layui-form-item layui-inline">
-            <div class="layui-inline">
+        <div class="layui-form-item layui-inline" id="layui-form-item4">
                 <button class="layui-btn" lay-submit lay-filter="formDemo">立即刷新</button>
                 <button type="reset" class="layui-btn layui-btn-primary">重置</button>
-            </div>
         </div>
     </form>
 
@@ -60,7 +57,6 @@
         <div class="layui-row">
             <div class="chart-container group-pie">
                 <div id="groupPie" class="chart">
-                    </divid>
                 </div>
             </div>
             <div class="jobs">

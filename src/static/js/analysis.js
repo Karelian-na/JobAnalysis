@@ -12,12 +12,20 @@ document.addEventListener("DOMContentLoaded", () => {
     const experienceBarChart = echarts.init(document.getElementById("experienceBar"));
 
     const form = document.querySelector("form");
+
     form.onsubmit = () => {
-        
         $.ajax({
             method: "POST",
             data: $(form).serialize(),
             url: `/analysis/${window.location.href.substring(window.location.href.lastIndexOf("/") + 1)}`,
+            beforeSend: function () {
+                index_wait = layer.load(0, {  //发送请求前调用load方法
+                    shade: [0.5, '#fff'],  //0.5透明度的白色背景
+                });
+            },
+            complete: function () {  //load默认不会关闭，请求完成需要在complete回调中关闭
+                layer.close(index_wait);
+            },
             success: (result) => {
                 data = JSON.parse(result);
                 renderSalaryBarChart(data);
@@ -47,6 +55,15 @@ document.addEventListener("DOMContentLoaded", () => {
             xAxis: {
                 type: "category",
                 data: Object.keys(salaryData),
+                axisLabel: {
+                    color: 'black',
+                    interval: 0,
+                    route: 30
+                    // formatter: function (value) {
+                    //     const str = value.split('');
+                    //     return str.join('\n');
+                    // }
+                },
             },
             yAxis: {
                 type: "value",
@@ -86,6 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 },
             ],
         });
+
     }
 
     // 热门职业分析
@@ -162,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 });
                 first = false;
             });
-            
+
         } else {
             tableRenderer.config.limit = datas.length;
             tableRenderer.reload({

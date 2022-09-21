@@ -6,6 +6,16 @@ form.layui-form {
     padding-top: 20px;
 }
 
+#layui-form-item1{
+    margin-left: 40px;
+}
+#layui-form-item2{
+    margin-left: 20px;
+}
+#layui-form-item3,#layui-form-item4{
+    margin-left: 10px;
+}
+
 .content {
     width: 100%;
 }
@@ -78,4 +88,3 @@ form.layui-form {
     overflow: auto;
     flex-grow: 1;
 }
-
